@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>GameHub - Juego</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="assets/css/base.css">
+</head>
+<body>
+
+<header class="navbar">
+  <div class="container navbar-inner">
+    <a class="brand" href="index.html">
+      <span class="mark">🎮</span>
+      <span>GameHub</span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="games.html">Juegos</a>
+      <a href="community.html">Comunidad</a>
+    </nav>
+
+    <div class="nav-right">
+      <span id="nav-user" class="btn btn-ghost" style="cursor:default;">👤 Invitado</span>
+      <a id="nav-login" class="btn btn-primary" href="login.html">Login</a>
+      <button id="nav-logout" class="btn btn-ghost" type="button" style="display:none;">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="section">
+    <div id="game-details"></div>
+  </section>
+
+  <div class="spacer"></div>
+</main>
+
+<script src="assets/js/app.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const params = new URLSearchParams(window.location.search);
+  const gameId = params.get("id");
+
+  const games = await loadGames();
+  const game = games.find(g => g.id === gameId);
+
+  if (game) {
+    renderGamePage("game-details", game);
+  } else {
+    document.getElementById("game-details").innerHTML = `
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title">Juego no encontrado</div>
+          <div class="card-text">El juego que buscas no existe o el enlace está mal.</div>
+          <div style="margin-top:12px;">
+            <a class="btn btn-primary" href="games.html">Volver al catálogo</a>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+});
+</script>
+
+</body>
+</html>

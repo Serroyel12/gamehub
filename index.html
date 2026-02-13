@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>GameHub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="assets/css/base.css">
+</head>
+<body>
+
+<header class="navbar">
+  <div class="container navbar-inner">
+    <a class="brand" href="index.html">
+      <span class="mark">🎮</span>
+      <span>GameHub</span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="games.html">Juegos</a>
+      <a href="community.html">Comunidad</a>
+    </nav>
+
+    <div class="nav-right">
+      <span id="nav-user" class="btn btn-ghost" style="cursor:default;">👤 Invitado</span>
+      <a id="nav-login" class="btn btn-primary" href="login.html">Login</a>
+      <button id="nav-logout" class="btn btn-ghost" type="button" style="display:none;">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <div class="hero-card">
+      <h1>Tu arcade online: retro, moderno y original.</h1>
+      <p>
+        Juega en segundos, compite por récords y descubre nuevos títulos cada mes.
+        Esto es el MVP — la parte online real la escalamos después.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="games.html">🚀 Explorar juegos</a>
+        <a class="btn btn-ghost" href="game.html?id=meteor_dodge">☄️ Jugar Meteor Dodge</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">
+      <h2>🏆 Top Mensual</h2>
+      <div class="hint">Curado por el equipo (demo)</div>
+    </div>
+    <div id="top-monthly" class="grid"></div>
+  </section>
+
+  <section class="section">
+    <div id="local-leaderboard"></div>
+  </section>
+
+  <div class="spacer"></div>
+</main>
+
+<script src="assets/js/app.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/pages/home.js"></script>
+
+</body>
+</html>

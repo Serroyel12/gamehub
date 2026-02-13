@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>GameHub - Juegos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="assets/css/base.css">
+</head>
+<body>
+
+<header class="navbar">
+  <div class="container navbar-inner">
+    <a class="brand" href="index.html">
+      <span class="mark">🎮</span>
+      <span>GameHub</span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="games.html">Juegos</a>
+      <a href="community.html">Comunidad</a>
+    </nav>
+
+    <div class="nav-right">
+      <span id="nav-user" class="btn btn-ghost" style="cursor:default;">👤 Invitado</span>
+      <a id="nav-login" class="btn btn-primary" href="login.html">Login</a>
+      <button id="nav-logout" class="btn btn-ghost" type="button" style="display:none;">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="section">
+    <div class="section-title">
+      <h2>Catálogo</h2>
+      <div class="hint">Busca y filtra por categoría</div>
+    </div>
+
+    <div class="card" style="padding:14px;">
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <input id="search" type="text" placeholder="Buscar juego..."
+               style="flex:1; min-width:220px; padding:12px 12px; border-radius:12px; border:1px solid rgba(148,163,184,.2);
+                      background: rgba(15,23,42,.55); color: var(--text); outline:none;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-ghost filter-btn" data-filter="all" type="button">Todos</button>
+          <button class="btn btn-ghost filter-btn" data-filter="retro" type="button">Retro</button>
+          <button class="btn btn-ghost filter-btn" data-filter="modern" type="button">Modern</button>
+          <button class="btn btn-ghost filter-btn" data-filter="original" type="button">Original</button>
+        </div>
+      </div>
+      <div style="margin-top:10px; color: var(--muted); font-size: 13px;">
+        Tip: puedes buscar por título o descripción.
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div id="games-container" class="grid"></div>
+
+    <div id="no-results" class="card" style="padding:16px; display:none;">
+      <div class="card-title">Sin resultados</div>
+      <div class="card-text">Prueba con otro nombre o cambia el filtro.</div>
+    </div>
+  </section>
+
+  <div class="spacer"></div>
+</main>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/pages/games.js"></script>
+
+</body>
+</html>

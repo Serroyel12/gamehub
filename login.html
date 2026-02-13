@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>GameHub - Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="assets/css/base.css">
+</head>
+<body>
+
+<header class="navbar">
+  <div class="container navbar-inner">
+    <a class="brand" href="index.html">
+      <span class="mark">🎮</span>
+      <span>GameHub</span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="games.html">Juegos</a>
+    </nav>
+
+    <div class="nav-right">
+      <span id="nav-user" class="btn btn-ghost" style="cursor:default;">👤 Invitado</span>
+      <a id="nav-login" class="btn btn-primary" href="login.html">Login</a>
+      <button id="nav-logout" class="btn btn-ghost" type="button" style="display:none;">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="section">
+    <div class="card">
+      <div class="card-body">
+        <div class="card-title">Iniciar sesión (demo)</div>
+        <div class="card-text">Introduce un nickname. Se guarda en tu navegador (modo MVP).</div>
+
+        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+          <input id="nick" type="text" placeholder="Tu nickname..."
+                 style="flex:1; min-width:220px; padding:12px 12px; border-radius:12px; border:1px solid rgba(148,163,184,.2);
+                        background: rgba(15,23,42,.55); color: var(--text); outline:none;">
+          <button id="btnLogin" class="btn btn-primary" type="button">Entrar</button>
+        </div>
+
+        <div id="msg" style="margin-top:12px; color: var(--muted); font-size:13px;"></div>
+
+        <div style="margin-top:14px;">
+          <a class="btn btn-ghost" href="index.html">← Volver</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="spacer"></div>
+</main>
+
+<script src="assets/js/app.js"></script>
+<script>
+  const nickEl = document.getElementById("nick");
+  const msgEl = document.getElementById("msg");
+  const btn = document.getElementById("btnLogin");
+
+  function doLogin(){
+    const nick = (nickEl.value || "").trim();
+    if (nick.length < 2) {
+      msgEl.textContent = "Pon un nickname de al menos 2 caracteres.";
+      return;
+    }
+
+    // setUser() viene de app.js
+    setUser(nick);
+    msgEl.textContent = `✅ Bienvenido, ${nick}. Redirigiendo...`;
+    setTimeout(() => window.location.href = "index.html", 500);
+  }
+
+  btn.addEventListener("click", doLogin);
+  nickEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") doLogin();
+  });
+</script>
+
+</body>
+</html>

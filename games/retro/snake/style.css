@@ -1,0 +1,25 @@
+body {
+    background: #0f172a;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+.game-container {
+    margin-top: 20px;
+}
+
+canvas {
+    background: #1e293b;
+    border: 3px solid #38bdf8;
+    margin: 20px 0;
+}
+
+button {
+    padding: 8px 16px;
+    background: #38bdf8;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aim Trainer - GameHub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">🎯 Aim Trainer</div>
+      <div class="stats">
+        <span>Tiempo: <b id="time">30.0</b>s</span>
+        <span>Aciertos: <b id="hits">0</b></span>
+        <span>Fallos: <b id="miss">0</b></span>
+        <span>Best: <b id="best">0</b></span>
+      </div>
+    </div>
+
+    <div class="arena" id="arena">
+      <div class="overlay" id="overlay">
+        <div class="big" id="ovTitle">Listo</div>
+        <div class="sub" id="ovSub">30s · Haz click en los targets lo más rápido posible</div>
+
+        <div class="row">
+          <button class="btn primary" id="btnStart">▶ Empezar</button>
+          <button class="btn ghost" id="btnReset">↻ Reset</button>
+        </div>
+
+        <div class="hint">ESPACIO: Pausa · R: Reset</div>
+      </div>
+    </div>
+
+    <div class="help">
+      Objetivo: maximiza aciertos. Se guarda el récord (Best) en este navegador.
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

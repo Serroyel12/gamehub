@@ -1,0 +1,55 @@
+[
+  {
+    "id": "snake",
+    "title": "Snake",
+    "category": "retro",
+    "tagline": "El clásico de siempre.",
+    "cover": "assets/img/covers/snake.jpg",
+    "logo": "assets/img/logos/snake.png",
+    "path": "games/retro/snake/index.html",
+    "players": "1",
+    "difficulty": "Fácil",
+    "featured": true,
+    "scoreKey": "gamehub_snake_best"
+  },
+  {
+    "id": "meteor_dodge",
+    "title": "Meteor Dodge",
+    "category": "original",
+    "tagline": "Esquiva meteoritos con tu nave.",
+    "cover": "assets/img/covers/meteor_dodge.jpg",
+    "logo": "assets/img/logos/meteor.png",
+    "path": "games/original/meteor_dodge/index.html",
+    "players": "1",
+    "difficulty": "Media",
+    "featured": true,
+    "scoreKey": "gamehub_meteor_best"
+  },
+  {
+    "id": "reflex_arena",
+    "title": "Reflex Arena",
+    "category": "modern",
+    "tagline": "Piedra · Papel · Tijera (Best of 5).",
+    "cover": "assets/img/covers/reflex_arena.jpg",
+    "logo": "assets/img/logos/reflex.png",
+    "path": "games/modern/reflex_arena/index.html",
+    "players": "1",
+    "difficulty": "Fácil",
+    "featured": true,
+    "scoreKey": "gamehub_rps_best"
+  },
+  {
+  "id": "aim_trainer",
+  "title": "Aim Trainer",
+  "category": "modern",
+  "tagline": "30 segundos. Haz click y rompe tu récord.",
+  "cover": "assets/img/covers/aim_trainer.jpg",
+  "logo": "assets/img/logos/aim.png",
+  "path": "games/modern/aim_trainer/index.html",
+  "players": "1",
+  "difficulty": "Media",
+  "featured": true,
+  "scoreKey": "gamehub_aim_best"
+}
+
+]

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>GameHub - Comunidad</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="assets/css/base.css">
+</head>
+<body>
+
+<header class="navbar">
+  <div class="container navbar-inner">
+    <a class="brand" href="index.html">
+      <span class="mark">🎮</span><span>GameHub</span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="games.html">Juegos</a>
+      <a href="community.html">Comunidad</a>
+    </nav>
+
+    <div class="nav-right">
+      <span id="nav-user" class="btn btn-ghost" style="cursor:default;">👤 Invitado</span>
+      <a id="nav-login" class="btn btn-primary" href="login.html">Login</a>
+      <button id="nav-logout" class="btn btn-ghost" type="button" style="display:none;">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="section">
+    <div class="section-title">
+      <h2>💬 Comunidad</h2>
+      <div class="hint">Modo demo: guardado en tu navegador</div>
+    </div>
+
+    <div class="card" style="padding:14px;">
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <select id="gameFilter"
+                style="padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,.2);
+                       background: rgba(15,23,42,.55); color: var(--text); outline:none; min-width:220px;">
+          <option value="all">Todos los juegos</option>
+        </select>
+
+        <input id="text"
+               placeholder="Escribe un mensaje…"
+               style="flex:1; min-width:260px; padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,.2);
+                      background: rgba(15,23,42,.55); color: var(--text); outline:none;">
+
+        <button id="post" class="btn btn-primary" type="button">Publicar</button>
+      </div>
+
+      <div style="margin-top:10px; color: var(--muted); font-size:13px;">
+        Tip: inicia sesión con un nickname para que se vea tu nombre en los mensajes.
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div id="feed"></div>
+  </section>
+
+  <div class="spacer"></div>
+</main>
+
+<script src="assets/js/app.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/pages/community.js"></script>
+
+</body>
+</html>

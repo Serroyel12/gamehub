@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Meteor Dodge - GameHub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">☄️ Meteor Dodge</div>
+      <div class="stats">
+        <span>Score: <b id="score">0</b></span>
+        <span>Best: <b id="best">0</b></span>
+      </div>
+    </div>
+
+    <canvas id="c" width="640" height="360"></canvas>
+
+    <div class="help">
+      <div>Controles: <b>A/D</b> o <b>←/→</b> para moverte · <b>ESPACIO</b> pausa · <b>R</b> reinicia</div>
+      <div class="mini">Objetivo: esquiva meteoritos el máximo tiempo posible. Ganas puntos por supervivencia.</div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
