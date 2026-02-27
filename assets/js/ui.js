@@ -26,8 +26,15 @@ function renderGameGrid(containerId, games) {
       </div>
     ` : "";
 
+    // ⭐ placeholder (luego lo rellena Firebase gameStats)
+    const ratingBadge = `
+      <div class="rating-badge muted" style="margin-top:10px; font-size:13px;">
+        ⭐ 0.0 (0)
+      </div>
+    `;
+
     const card = `
-      <div class="card">
+      <div class="card" data-game-id="${game.id}">
         ${badge}
         ${logo}
         <div class="card-cover">
@@ -41,6 +48,8 @@ function renderGameGrid(containerId, games) {
             <span class="pill">🏷️ ${niceCategory(game.category)}</span>
             <span class="pill">🏆 ${best}</span>
           </div>
+
+          ${ratingBadge}
 
           <div style="margin-top:12px;">
             <a class="btn btn-primary" href="game.html?id=${game.id}">▶ Jugar</a>

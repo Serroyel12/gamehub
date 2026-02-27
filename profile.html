@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>RankArena - Perfil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="assets/css/base.css">
+
+  <style>
+    .badge-grid{
+      display:grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (max-width: 520px){
+      .badge-grid{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+
+    .badge-btn{
+      position:relative;
+      border:1px solid rgba(148,163,184,.18);
+      background: rgba(15,23,42,.40);
+      border-radius:14px;
+      padding:10px;
+      cursor:pointer;
+      transition: transform .08s ease, border-color .15s ease, background .15s ease;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      aspect-ratio: 1 / 1;
+      user-select:none;
+    }
+    .badge-btn:hover{ transform: translateY(-1px); border-color: rgba(56,189,248,.35); }
+    .badge-btn.is-selected{
+      border-color: rgba(56,189,248,.75);
+      background: rgba(56,189,248,.10);
+      box-shadow: 0 0 0 3px rgba(56,189,248,.10);
+    }
+    .badge-btn.is-locked{
+      opacity:.55;
+      cursor:not-allowed;
+      filter: grayscale(1);
+    }
+    .badge-btn img{
+      width:48px;
+      height:48px;
+      object-fit:contain;
+    }
+    .badge-lock{
+      position:absolute;
+      right:8px;
+      top:8px;
+      font-size:14px;
+      padding:4px 6px;
+      border-radius:999px;
+      background: rgba(2,6,23,.65);
+      border:1px solid rgba(148,163,184,.18);
+    }
+    .badge-help{
+      margin-top:8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+  </style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="container navbar-inner">
+    <a class="brand" href="index.html"><span class="mark">🎮</span><span>RankArena</span></a>
+    <nav class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="games.html">Juegos</a>
+      <a href="community.html">Comunidad</a>
+    </nav>
+    <div class="nav-right">
+      <a class="btn btn-ghost" href="login.html">👤 Login</a>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="section">
+    <div class="card" style="max-width:720px;margin:0 auto;">
+      <div class="card-body">
+        <div class="card-title">⚙️ Mi perfil</div>
+        <div class="card-text">Completa datos para control +18 y emparejamientos.</div>
+
+        <div id="state" class="pill" style="margin-top:10px; display:none;"></div>
+
+        <div style="margin-top:12px; display:grid; gap:10px;">
+          <input id="nickname" placeholder="Nickname"
+            style="padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,.2); background:rgba(15,23,42,.55); color:var(--text); outline:none;">
+
+          <input id="birthYear" placeholder="Año de nacimiento (ej: 2002)" inputmode="numeric"
+            style="padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,.2); background:rgba(15,23,42,.55); color:var(--text); outline:none;">
+
+          <select id="country"
+            style="padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,.2); background:rgba(15,23,42,.55); color:var(--text); outline:none;">
+            <option value="">País (opcional)</option>
+            <option value="ES">España</option>
+            <option value="MX">México</option>
+            <option value="AR">Argentina</option>
+            <option value="CO">Colombia</option>
+            <option value="CL">Chile</option>
+            <option value="PE">Perú</option>
+            <option value="US">Estados Unidos</option>
+            <option value="UK">Reino Unido</option>
+            <option value="FR">Francia</option>
+            <option value="DE">Alemania</option>
+            <option value="IT">Italia</option>
+          </select>
+
+          <label style="display:flex; gap:10px; align-items:center; color:var(--muted);">
+            <input id="premium" type="checkbox">
+            Premium (demo)
+          </label>
+
+          <!-- ===== INSIGNIAS ===== -->
+          <div class="card" style="padding:14px; border:1px solid rgba(148,163,184,.12); background:rgba(2,6,23,.35);">
+            <div class="card-title" style="font-size:14px;">🏅 Insignia de usuario</div>
+            <div class="card-text" style="margin-top:6px;">
+              Elige tu icono. La <b>10</b> es exclusiva premium.
+            </div>
+
+            <div id="badgeGrid" class="badge-grid"></div>
+
+            <div class="badge-help" id="badgeHelp"></div>
+          </div>
+
+          <button class="btn btn-primary" id="save" type="button">Guardar</button>
+        </div>
+
+        <div style="margin-top:14px; color:var(--muted); font-size:13px;">
+          Nota: en un sistema real, “premium” vendría de pagos y no se podría editar desde aquí.
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+  import { auth, db } from "./assets/js/firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+  import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+  const $ = (id) => document.getElementById(id);
+  const state = $("state");
+
+  const badgeGrid = $("badgeGrid");
+  const badgeHelp = $("badgeHelp");
+
+  const BADGE_COUNT = 10;
+  const BADGE_BASE = "assets/img/iconos"; // <-- asegúrate de que existe en el proyecto web
+
+  let uid = null;
+  let isPremium = false;
+  let selectedBadge = 1;
+
+  function show(text, ok=true){
+    state.style.display = "inline-flex";
+    state.textContent = text;
+    state.style.borderColor = ok ? "rgba(34,197,94,.35)" : "rgba(239,68,68,.35)";
+  }
+
+  function canUseBadge(n){
+    if (n === 10) return !!isPremium;
+    return n >= 1 && n <= 9;
+  }
+
+  function renderBadges(){
+    if (!badgeGrid) return;
+    badgeGrid.innerHTML = "";
+
+    for (let n = 1; n <= BADGE_COUNT; n++){
+      const locked = !canUseBadge(n);
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "badge-btn" + (n === selectedBadge ? " is-selected" : "") + (locked ? " is-locked" : "");
+      btn.title = locked ? "Solo Premium" : `Elegir insignia ${n}`;
+
+      btn.innerHTML = `
+        <img src="${BADGE_BASE}/${n}.png" alt="Insignia ${n}">
+        ${locked ? `<span class="badge-lock">🔒</span>` : ``}
+      `;
+
+      btn.addEventListener("click", () => {
+        if (locked){
+          badgeHelp.textContent = "🔒 La insignia 10 es exclusiva Premium.";
+          return;
+        }
+        selectedBadge = n;
+        localStorage.setItem("gh_badge", String(selectedBadge));
+        renderBadges();
+        badgeHelp.textContent = `✅ Insignia seleccionada: ${selectedBadge}`;
+      });
+
+      badgeGrid.appendChild(btn);
+    }
+
+    badgeHelp.textContent = canUseBadge(selectedBadge)
+      ? `Insignia actual: ${selectedBadge}`
+      : `Tu insignia actual no está permitida (se ajustará a 1).`;
+  }
+
+  function normalizeBadge(){
+    if (!canUseBadge(selectedBadge)){
+      selectedBadge = 1;
+      localStorage.setItem("gh_badge", "1");
+    }
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user){
+      show("❌ Debes iniciar sesión primero.", false);
+      return;
+    }
+    uid = user.uid;
+
+    const snap = await getDoc(doc(db, "users", uid));
+    const data = snap.exists() ? snap.data() : {};
+
+    $("nickname").value = data.nickname || (user.email?.split("@")[0] || "");
+    $("birthYear").value = data.birthYear || "";
+    $("country").value = data.country || "";
+
+    isPremium = !!data.premium;
+    $("premium").checked = isPremium;
+
+    // badge desde firestore -> fallback local -> fallback 1
+    selectedBadge = Number(data.badge || localStorage.getItem("gh_badge") || 1);
+    if (!Number.isFinite(selectedBadge) || selectedBadge < 1 || selectedBadge > BADGE_COUNT) selectedBadge = 1;
+
+    normalizeBadge();
+    renderBadges();
+
+    show("✅ Perfil cargado.", true);
+  });
+
+  $("premium").addEventListener("change", () => {
+    isPremium = $("premium").checked;
+    normalizeBadge();
+    renderBadges();
+  });
+
+  $("save").addEventListener("click", async () => {
+    try{
+      if (!uid) return;
+
+      const nickname = $("nickname").value.trim();
+      const by = $("birthYear").value.trim();
+      const birthYear = by ? Number(by) : null;
+      const country = $("country").value || null;
+
+      if (birthYear && (birthYear < 1900 || birthYear > new Date().getFullYear())){
+        show("❌ Año de nacimiento no válido.", false);
+        return;
+      }
+
+      // seguridad client-side
+      if (!canUseBadge(selectedBadge)) selectedBadge = 1;
+
+      await setDoc(doc(db, "users", uid), {
+        nickname: nickname || "Jugador",
+        birthYear,
+        country,
+        premium: $("premium").checked,
+        badge: selectedBadge,
+        updatedAt: serverTimestamp()
+      }, { merge:true });
+
+      localStorage.setItem("gh_nickname", nickname || "Jugador");
+      localStorage.setItem("gh_badge", String(selectedBadge));
+
+      show("✅ Perfil guardado.", true);
+    }catch(e){
+      console.error(e);
+      show("❌ Error guardando perfil: " + (e?.message || ""), false);
+    }
+  });
+</script>
+
+</body>
+</html>

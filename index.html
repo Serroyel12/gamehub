@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>GameHub</title>
+  <title>RankArena</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="assets/css/base.css">
 </head>
@@ -12,7 +12,7 @@
   <div class="container navbar-inner">
     <a class="brand" href="index.html">
       <span class="mark">🎮</span>
-      <span>GameHub</span>
+      <span>RankArena</span>
     </a>
 
     <nav class="nav-links">
@@ -21,11 +21,13 @@
       <a href="community.html">Comunidad</a>
     </nav>
 
-    <div class="nav-right">
-      <span id="nav-user" class="btn btn-ghost" style="cursor:default;">👤 Invitado</span>
-      <a id="nav-login" class="btn btn-primary" href="login.html">Login</a>
-      <button id="nav-logout" class="btn btn-ghost" type="button" style="display:none;">Salir</button>
-    </div>
+    <div class="nav-right" style="display:flex; gap:10px; align-items:center;">
+  <span class="pill">👤 <b id="navUserName">Invitado</b></span>
+
+  <a class="btn btn-ghost" id="navLoginBtn" href="login.html">Login</a>
+  <a class="btn btn-ghost" id="navProfileBtn" href="profile.html" style="display:none;">Perfil</a>
+  <button class="btn btn-ghost" id="navLogoutBtn" type="button" style="display:none;">Salir</button>
+</div>
   </div>
 </header>
 
@@ -63,6 +65,9 @@
 <script src="assets/js/data.js"></script>
 <script src="assets/js/ui.js"></script>
 <script src="assets/js/pages/home.js"></script>
-
+<script type="module">
+  import { initNavbarAuth } from "./assets/js/nav-auth.js";
+  initNavbarAuth();
+</script>
 </body>
 </html>

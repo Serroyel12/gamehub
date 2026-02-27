@@ -2,74 +2,208 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>GameHub - Juegos</title>
+  <title>RankArena - Juegos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
   <link rel="stylesheet" href="assets/css/base.css">
+
+  <style>
+    .navbar .nav-right{ display:flex; gap:10px; align-items:center; }
+
+    .catalog-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+
+    .catalog-title h2{ margin:0; }
+    .catalog-title .hint{ margin-top:4px; }
+
+    .filters-card{
+      padding:14px;
+      position: sticky;
+      top: 72px;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      background: rgba(2, 6, 23, .65);
+      border: 1px solid rgba(148,163,184,.18);
+    }
+
+    .filters-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .search-wrap{
+      flex:1;
+      min-width:260px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    .search-input{
+      flex:1;
+      min-width:220px;
+      padding:12px 12px;
+      border-radius:12px;
+      border:1px solid rgba(148,163,184,.20);
+      background: rgba(15,23,42,.55);
+      color: var(--text);
+      outline:none;
+    }
+
+    .search-input:focus{
+      border-color: rgba(56,189,248,.55);
+      box-shadow: 0 0 0 3px rgba(56,189,248,.12);
+    }
+
+    .filters-buttons{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .filter-btn.is-active{
+      border-color: rgba(56,189,248,.60) !important;
+      background: rgba(56,189,248,.12) !important;
+    }
+
+    .catalog-stats{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:10px;
+    }
+
+    .grid{ gap:16px; }
+
+    @media (max-width: 720px){
+      .filters-card{ position: relative; top:auto; }
+    }
+  </style>
 </head>
+
 <body>
+  <header class="navbar">
+    <div class="container navbar-inner">
+      <a class="brand" href="index.html">
+        <span class="mark">🎮</span>
+        <span>RankArena</span>
+      </a>
 
-<header class="navbar">
-  <div class="container navbar-inner">
-    <a class="brand" href="index.html">
-      <span class="mark">🎮</span>
-      <span>GameHub</span>
-    </a>
+      <nav class="nav-links">
+        <a href="index.html">Inicio</a>
+        <a href="games.html" aria-current="page">Juegos</a>
+        <a href="community.html">Comunidad</a>
+      </nav>
 
-    <nav class="nav-links">
-      <a href="index.html">Inicio</a>
-      <a href="games.html">Juegos</a>
-      <a href="community.html">Comunidad</a>
-    </nav>
-
-    <div class="nav-right">
-      <span id="nav-user" class="btn btn-ghost" style="cursor:default;">👤 Invitado</span>
-      <a id="nav-login" class="btn btn-primary" href="login.html">Login</a>
-      <button id="nav-logout" class="btn btn-ghost" type="button" style="display:none;">Salir</button>
+      <div class="nav-right">
+        <span class="pill">👤 <b id="navUserName">Invitado</b></span>
+        <a class="btn btn-ghost" id="navLoginBtn" href="login.html">Login</a>
+        <a class="btn btn-ghost" id="navProfileBtn" href="profile.html" style="display:none;">Perfil</a>
+        <button class="btn btn-ghost" id="navLogoutBtn" type="button" style="display:none;">Salir</button>
+      </div>
     </div>
-  </div>
-</header>
+  </header>
 
-<main class="container">
-  <section class="section">
-    <div class="section-title">
-      <h2>Catálogo</h2>
-      <div class="hint">Busca y filtra por categoría</div>
-    </div>
+  <main class="container">
+    <section class="section">
 
-    <div class="card" style="padding:14px;">
-      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-        <input id="search" type="text" placeholder="Buscar juego..."
-               style="flex:1; min-width:220px; padding:12px 12px; border-radius:12px; border:1px solid rgba(148,163,184,.2);
-                      background: rgba(15,23,42,.55); color: var(--text); outline:none;">
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button class="btn btn-ghost filter-btn" data-filter="all" type="button">Todos</button>
-          <button class="btn btn-ghost filter-btn" data-filter="retro" type="button">Retro</button>
-          <button class="btn btn-ghost filter-btn" data-filter="modern" type="button">Modern</button>
-          <button class="btn btn-ghost filter-btn" data-filter="original" type="button">Original</button>
+      <div class="catalog-head">
+        <div class="catalog-title section-title" style="margin:0;">
+          <h2>Catálogo</h2>
+          <div class="hint">Busca, filtra y entra a jugar. Las ⭐ se actualizan en tiempo real.</div>
+        </div>
+
+        <div class="catalog-stats">
+          <span class="pill" id="catalogCount">🎯 Juegos: —</span>
+          <span class="pill" id="catalogFilter">🏷️ Filtro: Todos</span>
         </div>
       </div>
-      <div style="margin-top:10px; color: var(--muted); font-size: 13px;">
-        Tip: puedes buscar por título o descripción.
+
+      <div class="card filters-card">
+        <div class="filters-row">
+          <div class="search-wrap">
+            <input
+              id="search"
+              class="search-input"
+              type="text"
+              placeholder="Buscar juego… (título o descripción)"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="filters-buttons" role="group" aria-label="Filtros">
+            <button class="btn btn-ghost filter-btn is-active" data-filter="all" type="button">Todos</button>
+            <button class="btn btn-ghost filter-btn" data-filter="retro" type="button">Retro</button>
+            <button class="btn btn-ghost filter-btn" data-filter="modern" type="button">Modern</button>
+            <button class="btn btn-ghost filter-btn" data-filter="original" type="button">Original</button>
+          </div>
+        </div>
+
+        <div style="margin-top:10px; color: var(--muted); font-size: 13px;">
+          Tip: escribe “ajedrez”, “meteor”, “aim”… y usa los filtros para afinar.
+        </div>
       </div>
-    </div>
+
+      <div class="spacer"></div>
+
+      <div id="games-container" class="grid" aria-live="polite"></div>
+
+      <div id="no-results" class="card" style="padding:16px; display:none;">
+        <div class="card-title">Sin resultados</div>
+        <div class="card-text">Prueba otro nombre o cambia el filtro.</div>
+      </div>
+
+    </section>
 
     <div class="spacer"></div>
+  </main>
 
-    <div id="games-container" class="grid"></div>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/app.js"></script>
 
-    <div id="no-results" class="card" style="padding:16px; display:none;">
-      <div class="card-title">Sin resultados</div>
-      <div class="card-text">Prueba con otro nombre o cambia el filtro.</div>
-    </div>
-  </section>
+  <script type="module" src="assets/js/pages/games.js"></script>
 
-  <div class="spacer"></div>
-</main>
+  <script type="module">
+    import { initNavbarAuth } from "./assets/js/nav-auth.js";
+    initNavbarAuth();
 
-<script src="assets/js/data.js"></script>
-<script src="assets/js/ui.js"></script>
-<script src="assets/js/app.js"></script>
-<script src="assets/js/pages/games.js"></script>
+    const filterBtns = [...document.querySelectorAll(".filter-btn")];
+    const pillFilter = document.getElementById("catalogFilter");
+    const pillCount  = document.getElementById("catalogCount");
 
+    function nice(cat){
+      if(cat==="retro") return "Retro";
+      if(cat==="modern") return "Modern";
+      if(cat==="original") return "Original";
+      return "Todos";
+    }
+
+    filterBtns.forEach(b=>{
+      b.addEventListener("click", ()=>{
+        filterBtns.forEach(x=>x.classList.remove("is-active"));
+        b.classList.add("is-active");
+        if (pillFilter) pillFilter.textContent = `🏷️ Filtro: ${nice(b.dataset.filter)}`;
+      });
+    });
+
+    const container = document.getElementById("games-container");
+    const obs = new MutationObserver(()=>{
+      const n = container?.querySelectorAll(".card")?.length ?? 0;
+      if (pillCount) pillCount.textContent = `🎯 Juegos: ${n}`;
+    });
+    if (container) obs.observe(container, { childList:true, subtree:true });
+  </script>
 </body>
 </html>

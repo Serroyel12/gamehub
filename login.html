@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>GameHub - Login</title>
+  <title>RankArena - Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="assets/css/base.css">
 </head>
@@ -12,70 +12,121 @@
   <div class="container navbar-inner">
     <a class="brand" href="index.html">
       <span class="mark">🎮</span>
-      <span>GameHub</span>
+      <span>RankArena</span>
     </a>
 
     <nav class="nav-links">
       <a href="index.html">Inicio</a>
       <a href="games.html">Juegos</a>
+      <a href="community.html">Comunidad</a>
     </nav>
-
-    <div class="nav-right">
-      <span id="nav-user" class="btn btn-ghost" style="cursor:default;">👤 Invitado</span>
-      <a id="nav-login" class="btn btn-primary" href="login.html">Login</a>
-      <button id="nav-logout" class="btn btn-ghost" type="button" style="display:none;">Salir</button>
-    </div>
   </div>
 </header>
 
 <main class="container">
   <section class="section">
-    <div class="card">
+    <div class="card" style="max-width:520px;margin:0 auto;">
       <div class="card-body">
-        <div class="card-title">Iniciar sesión (demo)</div>
-        <div class="card-text">Introduce un nickname. Se guarda en tu navegador (modo MVP).</div>
+        <div class="card-title">👤 Acceso</div>
+        <div class="card-text">Registro y login real con Firebase.</div>
 
-        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
-          <input id="nick" type="text" placeholder="Tu nickname..."
-                 style="flex:1; min-width:220px; padding:12px 12px; border-radius:12px; border:1px solid rgba(148,163,184,.2);
-                        background: rgba(15,23,42,.55); color: var(--text); outline:none;">
-          <button id="btnLogin" class="btn btn-primary" type="button">Entrar</button>
-        </div>
+        <div style="margin-top:12px; display:grid; gap:10px;">
+          <input id="nickname" placeholder="Nickname (solo para registro)"
+                 style="padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,.2); background:rgba(15,23,42,.55); color:var(--text); outline:none;">
 
-        <div id="msg" style="margin-top:12px; color: var(--muted); font-size:13px;"></div>
+          <input id="email" placeholder="Email" type="email"
+                 style="padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,.2); background:rgba(15,23,42,.55); color:var(--text); outline:none;">
 
-        <div style="margin-top:14px;">
-          <a class="btn btn-ghost" href="index.html">← Volver</a>
+          <input id="pass" placeholder="Contraseña" type="password"
+                 style="padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,.2); background:rgba(15,23,42,.55); color:var(--text); outline:none;">
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-primary" id="btnRegister" type="button">Crear cuenta</button>
+            <button class="btn btn-ghost" id="btnLogin" type="button">Entrar</button>
+            <button class="btn btn-ghost" id="btnLogout" type="button" style="display:none;">Salir</button>
+          </div>
+
+          <div id="msg" class="pill" style="display:none;"></div>
+
+          <div style="margin-top:10px;">
+            <a class="btn btn-ghost" href="profile.html">⚙️ Ir a mi perfil</a>
+          </div>
         </div>
       </div>
     </div>
   </section>
-
-  <div class="spacer"></div>
 </main>
 
-<script src="assets/js/app.js"></script>
-<script>
-  const nickEl = document.getElementById("nick");
-  const msgEl = document.getElementById("msg");
-  const btn = document.getElementById("btnLogin");
+<script type="module">
+  import { register, login, logout, watchAuth } from "./assets/js/auth.js";
 
-  function doLogin(){
-    const nick = (nickEl.value || "").trim();
-    if (nick.length < 2) {
-      msgEl.textContent = "Pon un nickname de al menos 2 caracteres.";
-      return;
-    }
+  const $ = (id) => document.getElementById(id);
+  const msg = $("msg");
+  const btnRegister = $("btnRegister");
+  const btnLogin = $("btnLogin");
+  const btnLogout = $("btnLogout");
 
-    // setUser() viene de app.js
-    setUser(nick);
-    msgEl.textContent = `✅ Bienvenido, ${nick}. Redirigiendo...`;
-    setTimeout(() => window.location.href = "index.html", 500);
+  function show(text, ok=true){
+    msg.style.display = "inline-flex";
+    msg.textContent = text;
+    msg.style.borderColor = ok ? "rgba(34,197,94,.35)" : "rgba(239,68,68,.35)";
   }
 
-  btn.addEventListener("click", doLogin);
-  nickEl.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") doLogin();
+  watchAuth((user) => {
+    if (user){
+      btnLogout.style.display = "inline-flex";
+      btnLogin.style.display = "none";
+      btnRegister.style.display = "none";
+      show(`✅ Sesión iniciada: ${user.email}`, true);
+    } else {
+      btnLogout.style.display = "none";
+      btnLogin.style.display = "inline-flex";
+      btnRegister.style.display = "inline-flex";
+      msg.style.display = "none";
+    }
+  });
+
+  btnRegister.addEventListener("click", async () => {
+    try {
+      const nickname = $("nickname").value.trim();
+      const email = $("email").value.trim();
+      const pass = $("pass").value;
+
+      if (!email || !pass){
+        show("❌ Email y contraseña son obligatorios.", false);
+        return;
+      }
+      await register(email, pass, nickname);
+      show("✅ Cuenta creada y sesión iniciada.", true);
+    } catch (e) {
+      show("❌ " + (e?.message || "Error registrando."), false);
+      console.error(e);
+    }
+  });
+
+  btnLogin.addEventListener("click", async () => {
+    try {
+      const email = $("email").value.trim();
+      const pass = $("pass").value;
+      if (!email || !pass){
+        show("❌ Email y contraseña son obligatorios.", false);
+        return;
+      }
+      await login(email, pass);
+      show("✅ Login correcto.", true);
+    } catch (e) {
+      show("❌ " + (e?.message || "Error login."), false);
+      console.error(e);
+    }
+  });
+
+  btnLogout.addEventListener("click", async () => {
+    try {
+      await logout();
+      show("✅ Sesión cerrada.", true);
+    } catch (e) {
+      show("❌ " + (e?.message || "Error logout."), false);
+    }
   });
 </script>
 

@@ -1,0 +1,116 @@
+/* --- Diseño del Tablero --- */
+.board {
+  width: min(520px, 90vw);
+  max-width: 520px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .35);
+  background: rgba(15, 23, 42, .35);
+}
+
+/* --- Caja de Estado FEN --- */
+.fenBox {
+  width: 100%;
+  min-height: 80px;
+  resize: none;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, .2);
+  background: rgba(15, 23, 42, .55);
+  color: var(--text);
+  outline: none;
+}
+
+/* --- Scroll Personalizado (Chrome, Edge, Safari) --- */
+.side::-webkit-scrollbar,
+.moves::-webkit-scrollbar,
+#chatMessages::-webkit-scrollbar {
+  width: 10px;
+}
+
+.side::-webkit-scrollbar-thumb,
+.moves::-webkit-scrollbar-thumb,
+#chatMessages::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, .25);
+  border-radius: 10px;
+}
+
+.side::-webkit-scrollbar-track,
+.moves::-webkit-scrollbar-track,
+#chatMessages::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, .10);
+}
+
+/* --- Scroll Personalizado (Firefox) --- */
+.side,
+.moves,
+#chatMessages {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, .25) rgba(15, 23, 42, .10);
+}
+
+/* --- CHAT: Estructura Fija --- */
+.chat-wrap {
+  display: flex;
+  flex-direction: column;
+  height: 320px;            /* Altura fija del contenedor de chat */
+  min-height: 240px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, .12);
+  background: rgba(15, 23, 42, .30);
+  overflow: hidden;         /* Evita que el contenido se salga del radio del borde */
+}
+
+.chat-messages {
+  flex: 1 1 auto;           /* Toma todo el espacio sobrante */
+  overflow-y: auto;         /* Permite scroll solo en los mensajes */
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;                 /* Espacio entre burbujas */
+}
+
+.chat-composer {
+  flex: 0 0 auto;           /* No se encoge, siempre mantiene su tamaño */
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border-top: 1px solid rgba(148, 163, 184, .12);
+  background: rgba(2, 6, 23, .55);
+  backdrop-filter: blur(8px);
+  position: sticky;         /* Refuerzo para mantenerse al fondo */
+  bottom: 0;
+}
+
+/* --- Input y Botones del Chat --- */
+.chat-input {
+  flex: 1;
+  min-width: 160px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, .2);
+  background: rgba(15, 23, 42, .55);
+  color: var(--text);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.chat-input:focus {
+  border-color: rgba(56, 189, 248, .55);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, .12);
+}
+
+/* Estilo para las burbujas dentro de los mensajes */
+.chat-item {
+  margin-bottom: 4px;
+}
+
+.chat-bubble {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  max-width: 85%;
+  word-wrap: break-word;
+}

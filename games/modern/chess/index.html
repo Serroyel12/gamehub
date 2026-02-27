@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GameHub - Ajedrez</title>
+
+  <link rel="stylesheet" href="../../../assets/css/base.css">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- chessboard.js CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+
+  <!-- FIX anti-scroll + layout limpio -->
+  <style>
+    html, body { height: 100%; }
+
+/* En desktop NO bloquees el scroll del body */
+body { overflow: auto; }
+
+/* el wrapper principal con altura real */
+.chess-page{
+  min-height: 100vh;
+  width: 100vw;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+/* contenedor con altura fija real para que .side pueda scrollear */
+.chess-shell{
+  width: min(1200px, 100%);
+  height: 720px;                 /* ✅ ALTURA FIJA REAL */
+  display: grid;
+  grid-template-columns: 520px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+/* panel derecho: scroll */
+.side{
+  height: 720px;                 /* ✅ misma altura que chess-shell */
+  overflow-y: auto;              /* ✅ scroll vertical real */
+  overflow-x: hidden;
+  padding-right: 6px;
+  display:flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Movimientos y Chat con scroll interno */
+.moves{
+  max-height: 170px;
+  overflow:auto;
+  padding-right:6px;
+}
+
+#chatMessages{
+  max-height: 200px;
+  overflow:auto;
+  padding-right:6px;
+}
+
+/* En móvil apila y usa scroll normal */
+@media (max-width: 980px){
+  body{ overflow:auto; }
+  .chess-page{ height:auto; min-height: 100vh; }
+  .chess-shell{
+    height:auto;                 
+    grid-template-columns: 1fr;
+  }
+  .side{
+    height:auto;                 
+    overflow: visible;
+    padding-right:0;
+  }
+}
+  </style>
+</head>
+<body>
+
+<main class="chess-page">
+  <div class="chess-shell">
+
+    <!-- TABLERO -->
+    <div>
+      <div id="board" class="board"></div>
+    </div>
+
+    <!-- PANEL -->
+    <div class="side">
+      <div class="pill" id="status">Cargando...</div>
+
+      <!-- ONLINE -->
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title" style="font-size:14px;">🌐 Online (turnos)</div>
+          <div class="card-text" style="margin-bottom:10px;">
+            Crea una partida o únete con un código.
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-primary" id="btnCreateOnline" type="button">Crear partida</button>
+            <input id="joinCode" placeholder="Código"
+              style="flex:1; min-width:140px; padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,.2); background:rgba(15,23,42,.55); color:var(--text); outline:none;">
+            <button class="btn btn-ghost" id="btnJoinOnline" type="button">Unirme</button>
+          </div>
+
+          <div class="pill" id="matchInfo" style="margin-top:10px; display:none;"></div>
+        </div>
+      </div>
+
+      <!-- CONTROLES -->
+      <div class="controls">
+        <button class="btn btn-ghost" id="btnNew">Nueva partida (local)</button>
+        <button class="btn btn-ghost" id="btnUndo">Deshacer</button>
+        <button class="btn btn-ghost" id="btnFlip">Girar tablero</button>
+        <button class="btn btn-ghost" id="btnCopyFen">Copiar FEN</button>
+        <button class="btn btn-ghost" id="btnToggleSkin">Skin premium</button>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title" style="font-size:14px;">📌 Estado (FEN)</div>
+          <textarea id="fenBox" class="fenBox" readonly></textarea>
+        </div>
+      </div>
+
+    <div class="card">
+  <div class="card-body">
+    <div class="card-title" style="font-size:14px;">📝 Movimientos</div>
+    <div id="moves" class="moves" style="max-height:170px; overflow:auto; padding-right:6px;"></div>
+  </div>
+</div>
+<div class="card" id="chatCard" style="display:none;">
+  <div class="card-body">
+    <div class="card-title" style="font-size:14px; margin-bottom:10px;">💬 Chat de la partida</div>
+    
+    <div class="chat-wrap">
+      
+      <div id="chatMessages" class="chat-messages"></div>
+
+      <div class="chat-composer">
+        <input id="chatInput" class="chat-input" placeholder="Escribe un mensaje...">
+        <button class="btn btn-primary" id="btnSendChat" type="button">Enviar</button>
+      </div>
+      
+    </div>
+
+    <div class="pill" id="chatHint" style="margin-top:10px; display:none;"></div>
+  </div>
+</div>
+    </div>
+
+  </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+
+<!-- chess.js LOCAL -->
+<script src="../../../assets/libs/chess.min.js"></script>
+
+<script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+
+<script type="module" src="game.js"></script>
+<!-- CHAT (solo si ?match=XXXX y el juego es chess) -->
+<script type="module">
+  import { auth, db } from "./assets/js/firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+  import {
+    collection,
+    addDoc,
+    query,
+    orderBy,
+    onSnapshot,
+    serverTimestamp,
+    limit
+  } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+   params = new URLSearchParams(location.search);
+   gameId = params.get("id");
+  const matchId = (params.get("match") || "").trim().toUpperCase();
+
+  const chatCard = document.getElementById("chatCard");
+  const chatBox = document.getElementById("chatMessages");
+  const chatInput = document.getElementById("chatInput");
+  const btnSendChat = document.getElementById("btnSendChat");
+  const chatHint = document.getElementById("chatHint");
+
+  function escapeHTML(str){
+    return String(str || "").replace(/[&<>"']/g, m => ({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#039;"
+    }[m]));
+  }
+
+  function showChatHint(msg, ok=true){
+    if (!chatHint) return;
+    chatHint.style.display = "inline-flex";
+    chatHint.textContent = msg;
+    chatHint.classList.remove("pill-ok","pill-bad");
+    chatHint.classList.add(ok ? "pill-ok" : "pill-bad");
+    setTimeout(()=>{ chatHint.style.display="none"; }, 2200);
+  }
+
+  // Solo ajedrez + online
+  if (gameId !== "chess" || !matchId) {
+    // no mostramos nada
+  } else {
+    chatCard.style.display = "block";
+
+    const q = query(
+      collection(db, "matches", matchId, "messages"),
+      orderBy("createdAt", "asc"),
+      limit(200)
+    );
+
+    // escucha realtime
+    onSnapshot(q, (snap) => {
+      chatBox.innerHTML = "";
+      snap.forEach(d => {
+        const m = d.data();
+        const mine = auth.currentUser?.uid === m.uid;
+
+        const div = document.createElement("div");
+        div.className = "chat-item";
+        div.style.textAlign = mine ? "right" : "left";
+
+        div.innerHTML = `
+          <span class="chat-bubble" style="background:${mine ? "rgba(56,189,248,.22)" : "rgba(148,163,184,.14)"};">
+            ${escapeHTML(m.text)}
+          </span>
+        `;
+        chatBox.appendChild(div);
+      });
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }, (err) => {
+      console.error(err);
+      showChatHint("❌ No puedes acceder al chat de esta partida.", false);
+    });
+
+    // auth
+    onAuthStateChanged(auth, (user) => {
+      if (!user){
+        chatInput.disabled = true;
+        btnSendChat.disabled = true;
+        chatInput.placeholder = "Inicia sesión para chatear…";
+      } else {
+        chatInput.disabled = false;
+        btnSendChat.disabled = false;
+      }
+    });
+
+    async function sendMsg(){
+      const user = auth.currentUser;
+      if (!user){
+        showChatHint("Debes iniciar sesión.", false);
+        return;
+      }
+      const text = (chatInput.value || "").trim();
+      if (!text) return;
+
+      try{
+        await addDoc(collection(db, "matches", matchId, "messages"), {
+          uid: user.uid,
+          text: text.slice(0, 300),
+          createdAt: serverTimestamp()
+        });
+        chatInput.value = "";
+      }catch(e){
+        console.error(e);
+        showChatHint("❌ No se pudo enviar (permisos).", false);
+      }
+    }
+
+    btnSendChat.addEventListener("click", sendMsg);
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendMsg();
+    });
+  }
+</script>
+</body>
+</html>

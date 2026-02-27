@@ -10,7 +10,8 @@
     "players": "1",
     "difficulty": "Fácil",
     "featured": true,
-    "scoreKey": "gamehub_snake_best"
+    "scoreKey": "gamehub_snake_best",
+    "tags": ["retro","arcade","reflejos"]
   },
   {
     "id": "meteor_dodge",
@@ -23,7 +24,8 @@
     "players": "1",
     "difficulty": "Media",
     "featured": true,
-    "scoreKey": "gamehub_meteor_best"
+    "scoreKey": "gamehub_meteor_best",
+    "tags": ["original","arcade","skill"]
   },
   {
     "id": "reflex_arena",
@@ -36,7 +38,8 @@
     "players": "1",
     "difficulty": "Fácil",
     "featured": true,
-    "scoreKey": "gamehub_rps_best"
+    "scoreKey": "gamehub_rps_best",
+    "tags": ["casual","pvp","reflejos"]
   },
   {
   "id": "aim_trainer",
@@ -49,7 +52,20 @@
   "players": "1",
   "difficulty": "Media",
   "featured": true,
-  "scoreKey": "gamehub_aim_best"
+  "scoreKey": "gamehub_aim_best",
+   "tags": ["skill","reflejos","precision"]
+},
+{
+  "id": "chess",
+  "title": "Ajedrez",
+  "category": "modern",
+  "tagline": "Multijugador por turnos y skins premium.",
+  "cover": "assets/img/covers/ajedrez.jpg",
+  "path": "games/modern/chess/index.html",
+  "players": "1-2",
+  "difficulty": "Media",
+  "featured": true,
+  "tags": ["estrategia","turnos","online","tablero"]
 }
 
 ]
