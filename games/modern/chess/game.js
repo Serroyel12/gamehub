@@ -54,16 +54,21 @@ function getSkinName() {
 function setSkinName(name) {
   localStorage.setItem("gamehub_chess_skin", name);
 }
-
-function getPieceThemePath() {
-  // ✅ Base absoluta calculada desde este mismo archivo (game.js)
-  const base = new URL("../../../assets/img/chesspieces/", import.meta.url).href;
-
-  // Si no es premium, forzamos wikipedia
+function getPieceThemePath(piece) {
+  // 1. Obtenemos la ruta base absoluta de forma segura
+  const baseUrl = new URL("../../../assets/img/chesspieces/", import.meta.url).href;
+  
+  // 2. Determinamos el skin
   const skin = isPremiumUser() ? getSkinName() : "wikipedia";
-
-  // chessboard.js sustituye {piece} por wK, bQ, etc.
-  return `${base}${skin}/{piece}.png`;
+  
+  // 3. Construimos la ruta. 
+  // chessboard.js puede llamar a esta función pasando 'piece' o esperando el string con el template.
+  if (piece) {
+    return `${baseUrl}${skin}/${piece}.png`;
+  }
+  
+  // Si no recibe 'piece', devolvemos el template que la librería espera
+  return `${baseUrl}${skin}/{piece}.png`;
 }
 
 function syncSkinButtonVisibility() {
