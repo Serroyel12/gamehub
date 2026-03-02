@@ -7,7 +7,6 @@ import {
   doc, setDoc, getDoc, updateDoc, serverTimestamp, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 import { startChat, stopChat } from "./chat.js";
-
 // DOM
 const statusEl = document.getElementById("status");
 const fenBox = document.getElementById("fenBox");
@@ -24,7 +23,7 @@ const joinCode = document.getElementById("joinCode");
 const matchInfo = document.getElementById("matchInfo");
 const btnToggleSkin = document.getElementById("btnToggleSkin");
 
-// Librerías globales
+// Librerías globales (cargadas por script normal, NO module)
 const ChessCtor = window.Chess || null;
 const ChessboardCtor = window.Chessboard || null;
 
@@ -40,8 +39,8 @@ if (!ChessCtor || !ChessboardCtor) {
 }
 
 /// ======================
-// PREMIUM + SKINS
-/// ======================
+// PREMIUM + SKINS (compatible chessboard.js 1.0.0)
+// ======================
 function isPremiumUser() {
   return localStorage.getItem("gamehub_premium") === "1";
 }
@@ -56,13 +55,15 @@ function setSkinName(name) {
   localStorage.setItem("gamehub_chess_skin", name);
 }
 
-// CORRECCIÓN PARA GITHUB PAGES: Ruta robusta y evitar caché
-function getPieceThemePath(piece) {
-  const base = "../../../assets/img/chesspieces/";
+function getPieceThemePath() {
+  // ✅ Base absoluta calculada desde este mismo archivo (game.js)
+  const base = new URL("../../../assets/img/chesspieces/", import.meta.url).href;
+
+  // Si no es premium, forzamos wikipedia
   const skin = isPremiumUser() ? getSkinName() : "wikipedia";
-  // Añadimos un timestamp para forzar la recarga de la imagen al cambiar skin
-  const version = new Date().getTime();
-  return `${base}${skin}/${piece}.png?v=${version}`;
+
+  // chessboard.js sustituye {piece} por wK, bQ, etc.
+  return `${base}${skin}/{piece}.png`;
 }
 
 function syncSkinButtonVisibility() {
@@ -75,6 +76,7 @@ function syncSkinButtonVisibility() {
   }
 }
 
+// OJO: aquí guardamos la config base del tablero (se rellena en INIT)
 let boardConfig = null;
 
 function recreateBoardKeepState() {
@@ -83,18 +85,23 @@ function recreateBoardKeepState() {
   const fen = game.fen();
   const orient = flipped ? "black" : "white";
 
-  // Actualizamos la función de tema de piezas
-  boardConfig.pieceTheme = getPieceThemePath;
+  // Cambiar theme
+  boardConfig.pieceTheme = getPieceThemePath();
   boardConfig.orientation = orient;
   boardConfig.position = fen;
 
+  // Vaciar el contenedor (si no, chessboard duplica cosas)
   const el = document.getElementById("board");
   el.innerHTML = "";
 
+  // Recrear
   board = ChessboardCtor("board", boardConfig);
+
+  // Asegurar posición
   board.position(fen, false);
 }
 
+// Botón: ciclo skins
 btnToggleSkin?.addEventListener("click", () => {
   if (!isPremiumUser()) return;
 
@@ -112,6 +119,7 @@ btnToggleSkin?.addEventListener("click", () => {
 // Estado
 // ======================
 let me = null;
+
 let game = new ChessCtor();
 let board = null;
 let flipped = false;
@@ -120,8 +128,9 @@ let flipped = false;
 let onlineMode = false;
 let matchId = null;
 let unsub = null;
-let myColor = null; 
-let matchData = null;
+
+let myColor = null;       // 'w' o 'b'
+let matchData = null;     // snapshot data
 
 function randomCode(len = 6) {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -173,6 +182,9 @@ function updateUI() {
   setStatus(s);
 }
 
+// ======================
+// Permisos turno (online)
+// ======================
 function canIMove() {
   if (!onlineMode) return true;
   if (!matchData) return false;
@@ -188,18 +200,27 @@ function canIMove() {
 // ======================
 function onDragStart(source, piece) {
   if (game.game_over && game.game_over()) return false;
+
+  // Solo mover piezas del turno local
   if (game.turn() === "w" && piece.startsWith("b")) return false;
   if (game.turn() === "b" && piece.startsWith("w")) return false;
+
+  // Online: solo si te toca
   if (onlineMode && !canIMove()) return false;
+
   return true;
 }
 
 async function pushStateToFirestore() {
   if (!onlineMode || !matchId) return;
   if (!matchData) return;
+
+  // anti-trampa básico: si no es tu turno, no escribes
   if (matchData.turn !== myColor) return;
 
   const ref = doc(db, "matches", matchId);
+
+  // Detectar mate local y marcar ganador
   let winner = null;
   if (game.in_checkmate && game.in_checkmate()) {
     winner = (game.turn() === "w") ? "b" : "w";
@@ -219,13 +240,15 @@ function onDrop(source, target) {
   const move = game.move({ from: source, to: target, promotion: "q" });
   if (move === null) return "snapback";
 
+  // Refresca tablero y UI
   board.position(game.fen(), false);
   updateUI();
 
+  // Online -> guardar estado
   if (onlineMode) {
     pushStateToFirestore().catch((e) => {
       console.error(e);
-      setStatus("❌ Error guardando en Firestore");
+      setStatus("❌ Error guardando en Firestore (mira consola)");
     });
   }
 }
@@ -254,7 +277,7 @@ btnNew?.addEventListener("click", () => {
 
 btnUndo?.addEventListener("click", () => {
   if (onlineMode) {
-    setStatus("⚠️ En online no hay deshacer.");
+    setStatus("⚠️ En online no hay deshacer (anti-trampa).");
     return;
   }
   game.undo();
@@ -290,29 +313,34 @@ function bindMatch(code) {
     onlineMode = true;
     matchId = code;
 
+    // asignar mi color
     myColor = null;
     if (me) {
       if (matchData.white === me.uid) myColor = "w";
       else if (matchData.black === me.uid) myColor = "b";
     }
+if (matchData.status === "waiting") {
+  showMatchInfo(`🕒 Esperando rival… Código: ${code}`);
+  stopChat(); // aún no hay chat (o si quieres, lo puedes permitir igual)
+} else {
+  showMatchInfo(`✅ Partida activa · Código: ${code}`);
 
-    if (matchData.status === "waiting") {
-      showMatchInfo(`🕒 Esperando rival… Código: ${code}`);
-      stopChat();
-    } else {
-      showMatchInfo(`✅ Partida activa · Código: ${code}`);
-      if (myColor) startChat(code);
-      else stopChat();
-    }
-
+  // ✅ Chat solo si eres jugador (white/black)
+  const iAmPlayer = !!myColor; // myColor ya se calcula arriba
+  if (iAmPlayer) startChat(code);
+  else stopChat();
+}
+    // FEN remoto siempre válido
     let remoteFen = matchData.fen;
     if (!remoteFen || remoteFen === "start") remoteFen = new ChessCtor().fen();
 
+    // Sincronizar motor y tablero
     if (remoteFen !== game.fen()) {
       game = new ChessCtor(remoteFen);
       board.position(remoteFen, false);
     }
 
+    // Orientación según color en online
     if (myColor) {
       board.orientation(myColor === "b" ? "black" : "white");
       flipped = (myColor === "b");
@@ -327,23 +355,27 @@ function bindMatch(code) {
 
 btnCreateOnline?.addEventListener("click", async () => {
   if (!me) {
-    setStatus("❌ Inicia sesión para jugar online.");
+    setStatus("❌ Inicia sesión para crear partida online.");
     return;
   }
+
   const code = randomCode(6);
   const ref = doc(db, "matches", code);
+
   await setDoc(ref, {
     status: "waiting",
     white: me.uid,
     black: null,
-    fen: new ChessCtor().fen(),
+    fen: new ChessCtor().fen(),   // FEN real
     turn: "w",
     winner: null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   });
+
   myColor = "w";
   bindMatch(code);
+  setStatus("✅ Partida creada. Comparte el código: " + code);
 });
 
 btnJoinOnline?.addEventListener("click", async () => {
@@ -351,14 +383,24 @@ btnJoinOnline?.addEventListener("click", async () => {
     setStatus("❌ Inicia sesión para unirte.");
     return;
   }
+
   const code = (joinCode?.value || "").trim().toUpperCase();
-  if (!code) return;
+  if (!code) {
+    setStatus("❌ Escribe un código.");
+    return;
+  }
 
   const ref = doc(db, "matches", code);
   const snap = await getDoc(ref);
-  if (!snap.exists()) return;
+
+  if (!snap.exists()) {
+    setStatus("❌ No existe esa partida.");
+    return;
+  }
 
   const data = snap.data();
+
+  // entrar como negras si hay hueco
   if (!data.black && data.white !== me.uid) {
     await updateDoc(ref, {
       black: me.uid,
@@ -366,7 +408,9 @@ btnJoinOnline?.addEventListener("click", async () => {
       updatedAt: serverTimestamp()
     });
   }
+
   bindMatch(code);
+  setStatus("✅ Unido a la partida: " + code);
 });
 
 // ======================
@@ -376,18 +420,28 @@ boardConfig = {
   draggable: true,
   position: "start",
   orientation: "white",
-  pieceTheme: getPieceThemePath, // Pasamos la referencia a la función corregida
+  pieceTheme: getPieceThemePath(),
   onDragStart,
   onDrop,
   onSnapEnd
 };
 
 board = ChessboardCtor("board", boardConfig);
+
 syncSkinButtonVisibility();
 updateUI();
 
+// ======================
+// Auth
+// ======================
 onAuthStateChanged(auth, (user) => {
   me = user || null;
   syncSkinButtonVisibility();
-  updateUI();
+
+  if (!me) {
+    setStatus("⚠️ Inicia sesión para jugar online. Local disponible.");
+    // sin usuario, sigue en local
+  } else {
+    updateUI();
+  }
 });
