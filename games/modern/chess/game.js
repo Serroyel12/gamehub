@@ -55,20 +55,26 @@ function setSkinName(name) {
   localStorage.setItem("gamehub_chess_skin", name);
 }
 function getPieceThemePath(piece) {
-  // 1. Obtenemos la ruta base absoluta de forma segura
-  const baseUrl = new URL("../../../assets/img/chesspieces/", import.meta.url).href;
+  // 1. Detectamos la base del proyecto (funciona en local y en GitHub)
+  const pathArray = window.location.pathname.split('/');
+  const repoName = pathArray[1]; // Normalmente 'gamehub' en GitHub
   
-  // 2. Determinamos el skin
-  const skin = isPremiumUser() ? getSkinName() : "wikipedia";
-  
-  // 3. Construimos la ruta. 
-  // chessboard.js puede llamar a esta función pasando 'piece' o esperando el string con el template.
-  if (piece) {
-    return `${baseUrl}${skin}/${piece}.png`;
+  let baseUrl;
+  if (window.location.hostname.includes("github.io")) {
+    // Si estamos en GitHub Pages
+    baseUrl = `${window.location.origin}/${repoName}/assets/img/chesspieces`;
+  } else {
+    // Si estamos en Local (localhost)
+    baseUrl = `${window.location.origin}/assets/img/chesspieces`;
   }
-  
-  // Si no recibe 'piece', devolvemos el template que la librería espera
-  return `${baseUrl}${skin}/{piece}.png`;
+
+  const skin = isPremiumUser() ? getSkinName() : "wikipedia";
+
+  // Retornamos la ruta completa
+  if (piece) {
+    return `${baseUrl}/${skin}/${piece}.png`;
+  }
+  return `${baseUrl}/${skin}/{piece}.png`;
 }
 
 function syncSkinButtonVisibility() {
