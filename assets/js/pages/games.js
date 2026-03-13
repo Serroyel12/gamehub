@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // 7) Render con filtro/búsqueda + orden recomendado
- function apply() {
+  function apply() {
     const q = (searchEl?.value || "").trim().toLowerCase();
 
     const filtered = games.filter(g => {
@@ -76,34 +76,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const bySearch = q === "" ? true : hay.includes(q);
       return byFilter && bySearch;
     });
-
-    filtered.sort((a, b) => {
-      const fa = a.featured ? 1 : 0;
-      const fb = b.featured ? 1 : 0;
-      if (fb !== fa) return fb - fa;
-
-      const avga = getAvg(a.id);
-      const avgb = getAvg(b.id);
-      if (avgb !== avga) return avgb - avga;
-
-      const ca = getCount(a.id);
-      const cb = getCount(b.id);
-      if (cb !== ca) return cb - ca;
-
-      return (a.title || "").localeCompare(b.title || "");
-    });
-
-    renderGameGrid("games-container", filtered);
-
-    // --- AQUÍ ESTABA EL ERROR (Línea 102 corregida) ---
-    if (noResultsEl) {
-      noResultsEl.style.display = filtered.length === 0 ? "block" : "none";
-    }
-
-    filtered.forEach(g => {
-      updateStarsInDOM(g.id, getAvg(g.id), getCount(g.id));
-    });
-  }
 
     // Orden:
     // 1) featured (true primero)
