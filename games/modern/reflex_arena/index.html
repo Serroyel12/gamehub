@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Reflex Arena - GameHub</title>
+  <title>Dino Arena - RankArena</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="wrap">
     <div class="topbar">
-      <div class="title">🥊 Reflex Arena</div>
+      <div class="title">🦖 Dino Arena</div>
       <div class="stats">
         <span>Ronda: <b id="round">1</b>/5</span>
         <span>Tú: <b id="pWins">0</b></span>
@@ -28,28 +28,35 @@
         <div class="status" id="status">Elige tu jugada</div>
         <div class="sub" id="sub">Best of 5 · Ganas el match si llegas a 3</div>
         <div class="controls">
-          <button class="btn" data-pick="rock">🪨 Piedra</button>
-          <button class="btn" data-pick="paper">📄 Papel</button>
-          <button class="btn" data-pick="scissors">✂️ Tijera</button>
+          <button class="btn primary" data-pick="rock">🪨 Roca</button>
+          <button class="btn primary" data-pick="paper">🍃 Hoja</button>
+          <button class="btn primary" data-pick="scissors">🐾 Garra</button>
         </div>
 
         <div class="hint">ESPACIO: Pausa · R: Reiniciar</div>
       </div>
 
       <div class="right">
-        <div class="label">CPU</div>
+        <div class="label">DINO CPU</div>
         <div class="big" id="cPick">—</div>
       </div>
-    </div>
+
+      <div class="overlay" id="overlay">
+        <div class="big" id="ovTitle">🦖 DINO ARENA</div>
+        <div class="sub" id="ovSub">
+          Elige <b>Roca 🪨, Hoja 🍃 o Garra 🐾</b>.<br>
+          El clásico piedra, papel o tijera.<br><br>
+          Gana el mejor de 5. ¡Acumula rachas de victorias!
+        </div>
+        <button class="btn primary" id="startBtn">▶ Empezar</button>
+      </div>
+      </div>
 
     <div class="log card" id="log"></div>
 
     <div class="footer card">
       <div class="mini">
-        <b>Objetivo:</b> ganar partidos. El récord (Best) guarda tu mejor racha de matches ganados en este navegador.
-      </div>
-      <div class="mini">
-        <b>Modo demo:</b> ranking local. Luego lo hacemos online real.
+        <b>Objetivo:</b> Ganar partidos. El récord (Best) guarda tu mejor racha de matches ganados seguidos.
       </div>
     </div>
   </div>

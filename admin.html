@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Administración - RankArena</title>
+  <link rel="icon" type="image/png" href="assets/img/logo_dino.PNG">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="assets/css/base.css">
+  <style>
+    .admin-overlay {
+      position: fixed;
+      inset: 0;
+      background: #061208;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+    .admin-card {
+      background: rgba(10, 25, 12, 0.95);
+      border: 2px solid #dc2626;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 25px rgba(220, 38, 38, 0.2);
+    }
+    .admin-panel {
+      display: none; /* Se muestra tras poner la clave */
+    }
+    .table-container {
+      overflow-x: auto;
+      background: rgba(10, 25, 12, 0.85);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 8px;
+      padding: 10px;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    th { color: #f59e0b; text-transform: uppercase; font-size: 13px; }
+    td { color: #cddcb4; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<div id="loginScreen" class="admin-overlay">
+  <div class="admin-card">
+    <div style="font-size: 50px; margin-bottom: 10px;">🔒</div>
+    <h2 style="color: #ef4444; margin-bottom: 20px;">Acceso Restringido</h2>
+    <input type="password" id="adminPassword" placeholder="Contraseña de Admin" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #dc2626; background: rgba(0,0,0,0.5); color: #fff; text-align: center; font-size: 18px;">
+    <button id="loginBtn" class="btn primary" style="background: #dc2626; border-color: #7f1d1d; width: 100%;">Entrar al Sistema</button>
+  </div>
+</div>
+
+<div id="adminDashboard" class="admin-panel">
+  <header class="navbar">
+    <div class="container navbar-inner">
+      <a class="brand" href="index.html">
+        <span class="mark"></span>
+        <span style="color: #ef4444;">RankArena | ADMIN</span>
+      </a>
+      <div class="nav-right">
+        <button class="btn btn-ghost" onclick="window.location.href='index.html'">Volver al Inicio</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 style="color: #ef4444; text-transform: uppercase; margin-top: 20px;">🛠️ Centro de Control</h1>
+    <p style="color: #9ba896; margin-bottom: 30px;">Gestiona el contenido creado por los usuarios y revisa los reportes de la comunidad.</p>
+
+    <section class="section">
+      <h2 style="color: #f59e0b; border-bottom: 1px solid rgba(245, 158, 11, 0.3); padding-bottom: 10px;">🚨 Reportes Pendientes</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Email</th>
+              <th>Tipo</th>
+              <th>Detalles</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="reportsTableBody">
+            </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="spacer"></div>
+
+    <section class="section">
+      <h2 style="color: #10b981; border-bottom: 1px solid rgba(16, 185, 129, 0.3); padding-bottom: 10px;">🎮 Juegos de la Comunidad</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Título</th>
+              <th>Autor</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="gamesTableBody">
+            </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  // --- SISTEMA DE LOGIN FALSO ---
+  const PASSWORD_CORRECTA = "UCAM12"; // Cambia la contraseña aquí
+  
+  document.getElementById("loginBtn").addEventListener("click", () => {
+    const pass = document.getElementById("adminPassword").value;
+    if (pass === PASSWORD_CORRECTA) {
+      document.getElementById("loginScreen").style.display = "none";
+      document.getElementById("adminDashboard").style.display = "block";
+      cargarDatosAdmin(); // Cargar la información solo cuando se hace login
+    } else {
+      alert("Contraseña incorrecta. Intruso detectado.");
+    }
+  });
+
+  function cargarDatosAdmin() {
+    const reportes = JSON.parse(localStorage.getItem('rankArenaReports')) || [];
+    const juegos = JSON.parse(localStorage.getItem('rankArenaCreatorGames')) || [];
+    
+    // Actualizar la interfaz
+    renderizarReportes();
+    renderizarJuegos();
+
+    // Añadir una notificación visual rápida en el título
+    if (reportes.length > 0) {
+      document.querySelector('h1').innerHTML = `🛠️ Centro de Control <span style="background: #dc2626; color: white; font-size: 14px; padding: 4px 12px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">${reportes.length} AVISOS</span>`;
+    }
+  }
+
+  // --- GESTIÓN DE REPORTES ---
+  function renderizarReportes() {
+    const reportes = JSON.parse(localStorage.getItem('rankArenaReports')) || [];
+    const tbody = document.getElementById('reportsTableBody');
+    tbody.innerHTML = '';
+
+    if (reportes.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ba896;">No hay reportes nuevos. ¡Todo está tranquilo!</td></tr>';
+      return;
+    }
+
+    reportes.forEach(rep => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${rep.fecha}</td>
+        <td>${rep.email}</td>
+        <td><b style="color:#ef4444">${rep.tipo}</b></td>
+        <td style="max-width: 300px; word-wrap: break-word;">${rep.detalles}</td>
+        <td>
+          <button class="btn" style="background:#10b981; color:#fff; border:none; padding: 6px 12px; font-size:12px;" onclick="resolverReporte('${rep.id}')">Resolver ✅</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  window.resolverReporte = function(id) {
+    if(confirm("¿Seguro que quieres marcar este reporte como resuelto? (Se eliminará de la lista)")) {
+      let reportes = JSON.parse(localStorage.getItem('rankArenaReports')) || [];
+      reportes = reportes.filter(r => r.id !== id);
+      localStorage.setItem('rankArenaReports', JSON.stringify(reportes));
+      renderizarReportes(); // Actualizar la tabla
+    }
+  }
+
+  // --- GESTIÓN DE JUEGOS ---
+  function renderizarJuegos() {
+    const juegos = JSON.parse(localStorage.getItem('rankArenaCreatorGames')) || [];
+    const tbody = document.getElementById('gamesTableBody');
+    tbody.innerHTML = '';
+
+    if (juegos.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #9ba896;">No hay juegos de la comunidad subidos todavía.</td></tr>';
+      return;
+    }
+
+    juegos.forEach(juego => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="font-size: 11px; color: #64748b;">${juego.id}</td>
+        <td><b style="color:#10b981">${juego.title}</b></td>
+        <td>${juego.author}</td>
+        <td>
+          <button class="btn" style="background:#dc2626; color:#fff; border:none; padding: 6px 12px; font-size:12px;" onclick="eliminarJuego('${juego.id}')">Eliminar 🗑️</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  window.eliminarJuego = function(id) {
+    if(confirm("¿ATENCIÓN! ¿Seguro que quieres borrar este juego de la plataforma de forma permanente?")) {
+      let juegos = JSON.parse(localStorage.getItem('rankArenaCreatorGames')) || [];
+      juegos = juegos.filter(j => j.id !== id);
+      localStorage.setItem('rankArenaCreatorGames', JSON.stringify(juegos));
+      renderizarJuegos(); // Actualizar la tabla
+      alert("Juego eliminado. Ya no aparecerá en el catálogo.");
+    }
+  }
+</script>
+</body>
+</html>

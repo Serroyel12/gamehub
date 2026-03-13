@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Sube tu Juego - RankArena</title>
+  <link rel="icon" type="image/png" href="assets/img/logo_dino.PNG">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="assets/css/base.css">
+  <style>
+    .upload-container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: rgba(10, 25, 12, 0.85);
+      border: 2px solid #10b981;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(16, 185, 129, 0.15);
+    }
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .form-group label {
+      display: block;
+      color: #10b981;
+      font-weight: bold;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      font-size: 14px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 12px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      border-radius: 8px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 15px;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: #10b981;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+    }
+    #previewImg {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-top: 10px;
+      display: none;
+      border: 1px solid rgba(16, 185, 129, 0.5);
+    }
+  </style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="container navbar-inner">
+    <a class="brand" href="index.html">
+      <span class="mark"></span>
+      <span>RankArena</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="games.html">Juegos</a>
+      <a href="community.html">Comunidad</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container" style="text-align: center;">
+  <div class="upload-container">
+    <div style="font-size: 50px; margin-bottom: 10px;">🛠️</div>
+    <h1 style="color: #10b981; text-transform: uppercase; font-weight: 900; margin-bottom: 10px;">Publica tu Minijuego</h1>
+    <p style="color: #9ba896; margin-bottom: 30px; line-height: 1.5;">
+      Comparte tu creación con la comunidad. Al subir juegos podrás desbloquear insignias exclusivas en tu perfil.
+    </p>
+
+    <form id="uploadForm">
+      <div class="form-group">
+        <label for="gameTitle">Título del Juego</label>
+        <input type="text" id="gameTitle" class="form-control" placeholder="Ej: Galactic Shooter 3000" required>
+      </div>
+
+      <div class="form-group">
+        <label for="gameDesc">Descripción Corta</label>
+        <textarea id="gameDesc" class="form-control" rows="3" placeholder="¿De qué trata tu juego? Atrae a los jugadores..." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="gameImg">Miniatura (Logo / Imagen)</label>
+        <input type="file" id="gameImg" class="form-control" accept="image/*" required>
+        <img id="previewImg" src="#" alt="Vista previa">
+        <small style="color: #9ba896; display: block; margin-top: 5px;">Se recomienda una imagen cuadrada.</small>
+      </div>
+
+      <button type="submit" id="submitBtn" class="btn" style="background: #10b981; color: #fff; border: none; width: 100%; padding: 14px; font-size: 18px; text-transform: uppercase; font-weight: bold; margin-top: 10px; cursor: pointer;">🚀 Subir Juego a la Arena</button>
+    </form>
+  </div>
+</main>
+
+<script>
+  // Previsualización de imagen
+  document.getElementById('gameImg').onchange = function(evt) {
+    const [file] = this.files;
+    if (file) {
+      const preview = document.getElementById('previewImg');
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = 'block';
+    }
+  };
+
+  document.getElementById('uploadForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const title = document.getElementById('gameTitle').value;
+    const desc = document.getElementById('gameDesc').value;
+    const fileInput = document.getElementById('gameImg');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Bloquear botón para evitar doble envío
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Procesando...";
+
+    const saveGame = (base64Img) => {
+      // Obtenemos el nombre real del usuario de la sesión
+      const userNick = localStorage.getItem("gh_nickname") || "Guerrero";
+
+      const newGame = {
+        id: 'creator_' + Date.now(),
+        title: title,
+        description: desc,
+        image: base64Img,
+        author: userNick
+      };
+
+      // Obtener juegos existentes
+      let creatorGames = JSON.parse(localStorage.getItem('rankArenaCreatorGames')) || [];
+      creatorGames.push(newGame);
+      
+      // Guardar en memoria
+      localStorage.setItem('rankArenaCreatorGames', JSON.stringify(creatorGames));
+
+      // --- LÓGICA DE LOGROS ---
+      if (creatorGames.length === 2) {
+        alert("🏆 ¡LOGRO DESBLOQUEADO: Arquitecto Novel! (Sube 2 juegos). Revisa tu perfil.");
+      } else if (creatorGames.length === 5) {
+        alert("🏆 ¡LOGRO DESBLOQUEADO: Maestro Constructor! (Sube 5 juegos).");
+      } else {
+        alert("¡Juego subido con éxito a la Arena de la Comunidad!");
+      }
+
+      window.location.href = 'games.html';
+    };
+
+    if (fileInput.files && fileInput.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        saveGame(event.target.result);
+      };
+      reader.readAsDataURL(fileInput.files[0]);
+    }
+  });
+</script>
+
+</body>
+</html>

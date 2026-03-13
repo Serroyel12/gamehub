@@ -4,6 +4,9 @@ import {
   doc, runTransaction, onSnapshot, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
+
+import { saveHighScore, getGameLeaderboard, getEloLeaderboard } from "../scores.js";
+
 let me = null;
 let selected = 0;
 let gameId = null;
@@ -59,7 +62,7 @@ function bindUI(){
       if (!v) return;
 
       selected = v;
-      window.selectedRating = selected; // ✅ clave para reviews.js
+      window.selectedRating = selected;
       paintStars(selected);
       setMsg(`Tu voto: ${selected}/5`);
     });
@@ -135,11 +138,81 @@ async function submitRating(rating){
   });
 }
 
+// ===== RANKING INDIVIDUAL Y ELO =====
+async function loadLeaderboard() {
+  const tbody = document.getElementById("gameLeaderboardBody");
+  if (!tbody || !gameId) return;
+
+  try {
+    // Si el juego es ajedrez, cargamos el ranking de ELO
+    if (gameId === "chess") {
+      // Cambiamos el título de la columna para que ponga ELO
+      const thScore = document.querySelector("#gameLeaderboardTable th:last-child");
+      if (thScore) thScore.textContent = "ELO";
+
+      const scores = await getEloLeaderboard();
+      
+      if (scores.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="muted" style="text-align:center;">Aún no hay jugadores clasificados.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = scores.map((s, idx) => `
+        <tr>
+          <td style="color:var(--primary); font-weight:bold;">#${idx + 1}</td>
+          <td>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <img src="assets/img/iconos/${s.badge}.png" style="width:24px; height:24px; border-radius:4px; object-fit:contain;">
+              <span style="font-weight:700;">${s.nickname}</span>
+            </div>
+          </td>
+          <td style="font-weight:900; color:var(--primary); font-size:16px;">${s.elo}</td>
+        </tr>
+      `).join("");
+
+    } else {
+      // Si es otro juego (Snake, Meteor, etc.), cargamos el ranking normal de puntos
+      const scores = await getGameLeaderboard(gameId);
+      
+      if (scores.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="muted" style="text-align:center;">Aún no hay récords. ¡Sé el primero!</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = scores.map((s, idx) => `
+        <tr>
+          <td style="color:var(--primary); font-weight:bold;">#${idx + 1}</td>
+          <td style="font-weight:700;">👤 ${s.nickname}</td>
+          <td style="font-weight:900; color:#fff; font-size:16px;">${s.score}</td>
+        </tr>
+      `).join("");
+    }
+  } catch (e) {
+    console.error("Error cargando ranking:", e);
+    tbody.innerHTML = `<tr><td colspan="3" style="color:var(--danger); text-align:center;">Error al cargar clasificaciones.</td></tr>`;
+  }
+}
+// ===== PUENTE PARA GUARDAR PUNTOS DESDE EL IFRAME =====
+window.saveScoreFromGame = async function(idDelJuego, puntuacion) {
+  if (!me) {
+    console.log("Invitado: no se guarda en la nube.");
+    return; 
+  }
+  const nickname = localStorage.getItem("gh_nickname") || "Jugador";
+  try {
+    await saveHighScore(me.uid, nickname, idDelJuego, puntuacion);
+    loadLeaderboard(); // Recargar la tabla si superó el récord
+  } catch (error) {
+    console.error("Error al guardar en Firebase:", error);
+  }
+};
+
 // INIT
 document.addEventListener("DOMContentLoaded", async () => {
   await ensureGameId();
   bindUI();
   bindStats();
+  loadLeaderboard(); // Carga la tabla al abrir la página
 
   onAuthStateChanged(auth, (user) => {
     me = user || null;

@@ -3,65 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <title>RankArena - Perfil</title>
+  <link rel="icon" type="image/png" href="assets/img/logo_dino.PNG">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="assets/css/base.css">
-
   <style>
-    .badge-grid{
-      display:grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap:10px;
-      margin-top:10px;
-    }
-    @media (max-width: 520px){
-      .badge-grid{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    }
+    .badge-grid{ display:grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap:10px; margin-top:10px; }
+    .badge-btn{ position:relative; border:1px solid rgba(148,163,184,.18); background: rgba(15,23,42,.40); border-radius:14px; padding:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; aspect-ratio: 1/1; }
+    .badge-btn.is-selected{ border-color: rgba(56,189,248,.75); background: rgba(56,189,248,.10); }
+    .badge-btn img{ width:48px; height:48px; object-fit:contain; }
+    .notif-box { background:rgba(245,158,11,0.1); border-left:3px solid #f59e0b; padding:10px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; border-radius:0 8px 8px 0; font-size:13px; }
+    .notif-box button { background:#f59e0b; border:none; color:white; padding:4px 8px; border-radius:4px; cursor:pointer; margin-left:5px; font-weight:bold; }
 
-    .badge-btn{
-      position:relative;
-      border:1px solid rgba(148,163,184,.18);
-      background: rgba(15,23,42,.40);
-      border-radius:14px;
-      padding:10px;
-      cursor:pointer;
-      transition: transform .08s ease, border-color .15s ease, background .15s ease;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      aspect-ratio: 1 / 1;
-      user-select:none;
+    /* ESTILOS DE LOGROS */
+    .achievement-item { display: flex; flex-direction: column; align-items: center; position: relative; }
+    .achievement-img {
+      width: 65px; height: 65px; border-radius: 12px; object-fit: cover;
+      filter: grayscale(1) opacity(0.2); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 2px solid rgba(255,255,255,0.05);
     }
-    .badge-btn:hover{ transform: translateY(-1px); border-color: rgba(56,189,248,.35); }
-    .badge-btn.is-selected{
-      border-color: rgba(56,189,248,.75);
-      background: rgba(56,189,248,.10);
-      box-shadow: 0 0 0 3px rgba(56,189,248,.10);
+    .achievement-img.unlocked {
+      filter: grayscale(0) opacity(1); border-color: #f59e0b;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); transform: scale(1.05);
     }
-    .badge-btn.is-locked{
-      opacity:.55;
-      cursor:not-allowed;
-      filter: grayscale(1);
-    }
-    .badge-btn img{
-      width:48px;
-      height:48px;
-      object-fit:contain;
-    }
-    .badge-lock{
-      position:absolute;
-      right:8px;
-      top:8px;
-      font-size:14px;
-      padding:4px 6px;
-      border-radius:999px;
-      background: rgba(2,6,23,.65);
-      border:1px solid rgba(148,163,184,.18);
-    }
-    .badge-help{
-      margin-top:8px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.35;
+    .achievement-item:hover::after {
+      content: attr(data-hint); position: absolute; bottom: 110%; left: 50%;
+      transform: translateX(-50%); background: #1a1a1a; color: #f59e0b;
+      padding: 8px 12px; border-radius: 8px; font-size: 11px; width: 140px;
+      z-index: 100; border: 1px solid #f59e0b; text-align: center; pointer-events: none;
     }
   </style>
 </head>
@@ -69,15 +37,8 @@
 
 <header class="navbar">
   <div class="container navbar-inner">
-    <a class="brand" href="index.html"><span class="mark">🎮</span><span>RankArena</span></a>
-    <nav class="nav-links">
-      <a href="index.html">Inicio</a>
-      <a href="games.html">Juegos</a>
-      <a href="community.html">Comunidad</a>
-    </nav>
-    <div class="nav-right">
-      <a class="btn btn-ghost" href="login.html">👤 Login</a>
-    </div>
+    <a class="brand" href="index.html"><span class="mark"></span><span>RankArena</span></a>
+    <nav class="nav-links"><a href="index.html">Inicio</a><a href="games.html">Juegos</a><a href="community.html">Comunidad</a></nav>
   </div>
 </header>
 
@@ -86,55 +47,48 @@
     <div class="card" style="max-width:720px;margin:0 auto;">
       <div class="card-body">
         <div class="card-title">⚙️ Mi perfil</div>
-        <div class="card-text">Completa datos para control +18 y emparejamientos.</div>
-
-        <div id="state" class="pill" style="margin-top:10px; display:none;"></div>
-
+        
         <div style="margin-top:12px; display:grid; gap:10px;">
-          <input id="nickname" placeholder="Nickname"
-            style="padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,.2); background:rgba(15,23,42,.55); color:var(--text); outline:none;">
+          <input id="nickname" placeholder="Nickname" style="padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,.2); background:rgba(15,23,42,.55); color:var(--text); outline:none;">
+          <input id="birthYear" placeholder="Año" style="padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,.2); background:rgba(15,23,42,.55); color:var(--text); outline:none;">
 
-          <input id="birthYear" placeholder="Año de nacimiento (ej: 2002)" inputmode="numeric"
-            style="padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,.2); background:rgba(15,23,42,.55); color:var(--text); outline:none;">
-
-          <select id="country"
-            style="padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,.2); background:rgba(15,23,42,.55); color:var(--text); outline:none;">
+          <select id="country" style="padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,.2); background:rgba(15,23,42,.55); color:var(--text); outline:none;">
             <option value="">País (opcional)</option>
-            <option value="ES">España</option>
-            <option value="MX">México</option>
-            <option value="AR">Argentina</option>
-            <option value="CO">Colombia</option>
-            <option value="CL">Chile</option>
-            <option value="PE">Perú</option>
-            <option value="US">Estados Unidos</option>
-            <option value="UK">Reino Unido</option>
-            <option value="FR">Francia</option>
-            <option value="DE">Alemania</option>
-            <option value="IT">Italia</option>
+            <option value="ES">España</option><option value="MX">México</option><option value="AR">Argentina</option>
+            <option value="CO">Colombia</option><option value="CL">Chile</option><option value="PE">Perú</option>
+            <option value="US">EE.UU.</option>
           </select>
+          
+          <label style="color:var(--muted); font-size:14px;"><input id="premium" type="checkbox"> Premium (demo)</label>
 
-          <label style="display:flex; gap:10px; align-items:center; color:var(--muted);">
-            <input id="premium" type="checkbox">
-            Premium (demo)
-          </label>
+          <div id="badgeGrid" class="badge-grid"></div>
 
-          <!-- ===== INSIGNIAS ===== -->
-          <div class="card" style="padding:14px; border:1px solid rgba(148,163,184,.12); background:rgba(2,6,23,.35);">
-            <div class="card-title" style="font-size:14px;">🏅 Insignia de usuario</div>
-            <div class="card-text" style="margin-top:6px;">
-              Elige tu icono. La <b>10</b> es exclusiva premium.
+          <div class="card" style="padding:14px; border:1px solid rgba(245, 158, 11, 0.2); background:rgba(2,6,23,.35); margin-top:10px;">
+            <div class="card-title" style="font-size:14px; color:#f59e0b; display:flex; justify-content:space-between;">
+              <span>🦖 Trofeos de la Arena</span>
+              <span id="logrosCount" style="font-size:12px; opacity:0.7;">0/5</span>
             </div>
-
-            <div id="badgeGrid" class="badge-grid"></div>
-
-            <div class="badge-help" id="badgeHelp"></div>
+            <div id="achievementsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 15px; margin-top: 15px; justify-items: center;"></div>
           </div>
 
-          <button class="btn btn-primary" id="save" type="button">Guardar</button>
-        </div>
+          <div class="card" style="padding:14px; border:1px solid rgba(148,163,184,.12); background:rgba(2,6,23,.35); margin-top:10px;">
+            <div class="card-title" style="font-size:14px;">⚔️ Desafíos de Amistad</div>
+            <div id="notificationsArea" style="margin-top:10px;"></div>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+              <input id="friendNickname" placeholder="Nickname del guerrero..." style="flex:1; padding:10px; border-radius:10px; border:1px solid rgba(148,163,184,.2); background:rgba(15,23,42,.55); color:var(--text); font-size:13px;">
+              <button class="btn btn-primary" id="sendRequestBtn" type="button">Enviar</button>
+            </div>
+            <div id="friendHelp" class="badge-help"></div>
+          </div>
 
-        <div style="margin-top:14px; color:var(--muted); font-size:13px;">
-          Nota: en un sistema real, “premium” vendría de pagos y no se podría editar desde aquí.
+          <div class="card" style="padding:14px; border:1px solid rgba(56,189,248,.2); background:rgba(2,6,23,.35); margin-top:10px;">
+            <div class="card-title" style="font-size:14px; color:#38bdf8;">👥 Mis Aliados</div>
+            <div id="friendsList" style="margin-top:10px; display:grid; gap:8px;">
+              <div class="muted" style="font-size:12px; text-align:center; padding:10px;">Aún no tienes aliados.</div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="save" type="button">Guardar Perfil</button>
         </div>
       </div>
     </div>
@@ -144,144 +98,167 @@
 <script type="module">
   import { auth, db } from "./assets/js/firebase.js";
   import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-  import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+  import { doc, getDoc, setDoc, collection, query, where, getDocs, addDoc, onSnapshot, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
   const $ = (id) => document.getElementById(id);
-  const state = $("state");
+  let uid = null, myNickname = "", isPremium = false, selectedBadge = 1;
 
-  const badgeGrid = $("badgeGrid");
-  const badgeHelp = $("badgeHelp");
+  const LOGROS_CONFIG = [
+    { id: 'puntos_aim', img: '50puntosaimtrainer.png', hint: '50 pts en Aim Trainer' },
+    { id: 'jugar_15', img: 'jugar15minutos.png', hint: 'Juega 15 min' },
+    { id: 'puntos_volcan', img: 'llegar100puntosvolcan.png', hint: '100 pts en Volcano' },
+    { id: 'elo_chess', img: 'llegar1250eloajedrez.png', hint: '1250 ELO Ajedrez' },
+    { id: 'subir_2', img: 'subir2juegos.png', hint: 'Sube 2 juegos' }
+  ];
 
-  const BADGE_COUNT = 10;
-  const BADGE_BASE = "assets/img/iconos"; // <-- asegúrate de que existe en el proyecto web
-
-  let uid = null;
-  let isPremium = false;
-  let selectedBadge = 1;
-
-  function show(text, ok=true){
-    state.style.display = "inline-flex";
-    state.textContent = text;
-    state.style.borderColor = ok ? "rgba(34,197,94,.35)" : "rgba(239,68,68,.35)";
-  }
-
-  function canUseBadge(n){
-    if (n === 10) return !!isPremium;
-    return n >= 1 && n <= 9;
-  }
-
-  function renderBadges(){
-    if (!badgeGrid) return;
-    badgeGrid.innerHTML = "";
-
-    for (let n = 1; n <= BADGE_COUNT; n++){
-      const locked = !canUseBadge(n);
-
+  function renderBadges() {
+    $("badgeGrid").innerHTML = "";
+    for (let n = 1; n <= 10; n++) {
+      const locked = n === 10 && !isPremium;
       const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "badge-btn" + (n === selectedBadge ? " is-selected" : "") + (locked ? " is-locked" : "");
-      btn.title = locked ? "Solo Premium" : `Elegir insignia ${n}`;
-
-      btn.innerHTML = `
-        <img src="${BADGE_BASE}/${n}.png" alt="Insignia ${n}">
-        ${locked ? `<span class="badge-lock">🔒</span>` : ``}
-      `;
-
-      btn.addEventListener("click", () => {
-        if (locked){
-          badgeHelp.textContent = "🔒 La insignia 10 es exclusiva Premium.";
-          return;
-        }
-        selectedBadge = n;
-        localStorage.setItem("gh_badge", String(selectedBadge));
-        renderBadges();
-        badgeHelp.textContent = `✅ Insignia seleccionada: ${selectedBadge}`;
-      });
-
-      badgeGrid.appendChild(btn);
+      btn.className = "badge-btn " + (n === selectedBadge ? "is-selected " : "") + (locked ? "is-locked" : "");
+      btn.innerHTML = `<img src="assets/img/iconos/${n}.png">${locked ? '🔒' : ''}`;
+      btn.onclick = () => { if(!locked) { selectedBadge = n; renderBadges(); } };
+      $("badgeGrid").appendChild(btn);
     }
-
-    badgeHelp.textContent = canUseBadge(selectedBadge)
-      ? `Insignia actual: ${selectedBadge}`
-      : `Tu insignia actual no está permitida (se ajustará a 1).`;
   }
 
-  function normalizeBadge(){
-    if (!canUseBadge(selectedBadge)){
-      selectedBadge = 1;
-      localStorage.setItem("gh_badge", "1");
+  function renderAchievements(userData) {
+    const grid = $("achievementsGrid");
+    grid.innerHTML = "";
+    let unlockedCount = 0;
+    const ganados = userData.logros || [];
+    const creadosLocales = (JSON.parse(localStorage.getItem('rankArenaCreatorGames')) || []).length;
+
+    LOGROS_CONFIG.forEach(logro => {
+      let unlocked = ganados.includes(logro.id) || (logro.id === 'subir_2' && creadosLocales >= 2);
+      if (unlocked) unlockedCount++;
+      const item = document.createElement("div");
+      item.className = "achievement-item";
+      item.setAttribute("data-hint", logro.hint);
+      item.innerHTML = `<img src="assets/img/insignias/${logro.img}" class="achievement-img ${unlocked ? 'unlocked' : ''}">`;
+      grid.appendChild(item);
+    });
+    $("logrosCount").textContent = `${unlockedCount}/${LOGROS_CONFIG.length}`;
+  }
+
+  // Respuesta a solicitudes con lógica bilateral corregida
+  window.reply = async (requestId, accept) => {
+    try {
+      const reqRef = doc(db, "friendRequests", requestId);
+      const reqSnap = await getDoc(reqRef);
+
+      if (accept && reqSnap.exists()) {
+        const reqData = reqSnap.data();
+        const myUid = auth.currentUser.uid;
+
+        // 1. Añadir el amigo a MI lista
+        const myRef = doc(db, "users", myUid);
+        const myDoc = await getDoc(myRef);
+        let myFriends = myDoc.data().friends || [];
+        if (!myFriends.includes(reqData.fromId)) {
+          myFriends.push(reqData.fromId);
+          await setDoc(myRef, { friends: myFriends }, { merge: true });
+        }
+
+        // 2. Añadirme YO a la lista de mi AMIGO
+        const friendRef = doc(db, "users", reqData.fromId);
+        const friendDoc = await getDoc(friendRef);
+        let friendFriends = friendDoc.data().friends || [];
+        if (!friendFriends.includes(myUid)) {
+          friendFriends.push(myUid);
+          await setDoc(friendRef, { friends: friendFriends }, { merge: true });
+        }
+        alert("¡Alianza establecida!");
+      }
+      await deleteDoc(reqRef);
+      window.location.reload();
+    } catch (e) { console.error(e); }
+  };
+
+  async function renderFriends(friendIds) {
+    const container = $("friendsList");
+    if (!friendIds || friendIds.length === 0) return;
+    container.innerHTML = "";
+    for (const fId of friendIds) {
+      const fSnap = await getDoc(doc(db, "users", fId));
+      if (fSnap.exists()) {
+        const d = fSnap.data();
+        const div = document.createElement("div");
+        div.style = "display:flex; align-items:center; gap:10px; background:rgba(15,23,42,0.5); padding:8px; border-radius:10px; border:1px solid rgba(255,255,255,0.05); margin-bottom:5px;";
+        div.innerHTML = `
+          <img src="assets/img/iconos/${d.badge || 1}.png" style="width:30px; height:30px;">
+          <div style="flex:1; font-size:13px; font-weight:bold;">${d.nickname}</div>
+          <div style="font-size:10px; color:#38bdf8;">🟢 Aliado</div>
+        `;
+        container.appendChild(div);
+      }
     }
+  }
+
+  function listenRequests(myUid) {
+    onSnapshot(query(collection(db, "friendRequests"), where("toId", "==", myUid)), (snap) => {
+      $("notificationsArea").innerHTML = "";
+      snap.forEach((d) => {
+        const r = d.data();
+        const div = document.createElement("div");
+        div.className = "notif-box";
+        div.innerHTML = `<span><b>${r.fromName}</b> te busca</span>
+          <div><button onclick="window.reply('${d.id}', true)">✅</button>
+          <button onclick="window.reply('${d.id}', false)">✖</button></div>`;
+        $("notificationsArea").appendChild(div);
+      });
+    });
   }
 
   onAuthStateChanged(auth, async (user) => {
-    if (!user){
-      show("❌ Debes iniciar sesión primero.", false);
-      return;
-    }
+    if (!user) return;
     uid = user.uid;
-
     const snap = await getDoc(doc(db, "users", uid));
-    const data = snap.exists() ? snap.data() : {};
-
-    $("nickname").value = data.nickname || (user.email?.split("@")[0] || "");
-    $("birthYear").value = data.birthYear || "";
-    $("country").value = data.country || "";
-
-    isPremium = !!data.premium;
-    $("premium").checked = isPremium;
-
-    // badge desde firestore -> fallback local -> fallback 1
-    selectedBadge = Number(data.badge || localStorage.getItem("gh_badge") || 1);
-    if (!Number.isFinite(selectedBadge) || selectedBadge < 1 || selectedBadge > BADGE_COUNT) selectedBadge = 1;
-
-    normalizeBadge();
-    renderBadges();
-
-    show("✅ Perfil cargado.", true);
-  });
-
-  $("premium").addEventListener("change", () => {
-    isPremium = $("premium").checked;
-    normalizeBadge();
-    renderBadges();
-  });
-
-  $("save").addEventListener("click", async () => {
-    try{
-      if (!uid) return;
-
-      const nickname = $("nickname").value.trim();
-      const by = $("birthYear").value.trim();
-      const birthYear = by ? Number(by) : null;
-      const country = $("country").value || null;
-
-      if (birthYear && (birthYear < 1900 || birthYear > new Date().getFullYear())){
-        show("❌ Año de nacimiento no válido.", false);
-        return;
-      }
-
-      // seguridad client-side
-      if (!canUseBadge(selectedBadge)) selectedBadge = 1;
-
-      await setDoc(doc(db, "users", uid), {
-        nickname: nickname || "Jugador",
-        birthYear,
-        country,
-        premium: $("premium").checked,
-        badge: selectedBadge,
-        updatedAt: serverTimestamp()
-      }, { merge:true });
-
-      localStorage.setItem("gh_nickname", nickname || "Jugador");
-      localStorage.setItem("gh_badge", String(selectedBadge));
-
-      show("✅ Perfil guardado.", true);
-    }catch(e){
-      console.error(e);
-      show("❌ Error guardando perfil: " + (e?.message || ""), false);
+    if (snap.exists()) {
+      const d = snap.data();
+      $("nickname").value = myNickname = d.nickname || "";
+      $("birthYear").value = d.birthYear || "";
+      $("country").value = d.country || "";
+      isPremium = d.premium || false;
+      $("premium").checked = isPremium;
+      selectedBadge = d.badge || 1;
+      renderBadges();
+      renderAchievements(d);
+      if (d.friends) renderFriends(d.friends);
+      listenRequests(uid);
     }
   });
-</script>
 
+  $("save").onclick = async () => {
+    const creadosLocales = (JSON.parse(localStorage.getItem('rankArenaCreatorGames')) || []).length;
+    const snap = await getDoc(doc(db, "users", uid));
+    let logrosActuales = snap.exists() ? (snap.data().logros || []) : [];
+    if (creadosLocales >= 2 && !logrosActuales.includes('subir_2')) logrosActuales.push('subir_2');
+
+    await setDoc(doc(db, "users", uid), {
+      nickname: $("nickname").value.trim(),
+      birthYear: $("birthYear").value,
+      country: $("country").value,
+      premium: $("premium").checked,
+      badge: selectedBadge,
+      logros: logrosActuales
+    }, { merge: true });
+    alert("Perfil guardado");
+    location.reload();
+  };
+
+  $("sendRequestBtn").onclick = async () => {
+    const targetNick = $("friendNickname").value.trim();
+    if (!targetNick || targetNick === myNickname) return;
+    const qs = await getDocs(query(collection(db, "users"), where("nickname", "==", targetNick)));
+    if (qs.empty) { alert("Usuario no encontrado"); return; }
+    await addDoc(collection(db, "friendRequests"), {
+      fromId: uid, fromName: myNickname, toId: qs.docs[0].id, timestamp: serverTimestamp()
+    });
+    alert("Solicitud enviada");
+    $("friendNickname").value = "";
+  };
+</script>
 </body>
 </html>

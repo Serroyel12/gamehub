@@ -1,44 +1,49 @@
 /* =========
-   GameHub UI v1 (modern gaming)
+   GameHub UI v2.1 (Jurassic Theme with Logo)
    ========= */
 
-:root{
-  --bg0:#070B14;
-  --bg1:#0b1224;
-  --card:#121b33;
-  --card2:#0f172a;
-  --line:rgba(148,163,184,.18);
+:root {
+  /* Paleta Selva y Madera */
+  --bg0: #061208;
+  --bg1: #112a16;
+  --card: #362210;
+  --card2: #4d331a;
+  --line: rgba(164, 222, 2, 0.15);
 
-  --text:#f1f5f9;
-  --muted:#94a3b8;
+  --text: #fdf8e1;
+  --muted: #9ba896;
 
-  --primary:#38bdf8;
-  --primary2:#22d3ee;
-  --danger:#ef4444;
+  --primary: #f59e0b;
+  --primary2: #d97706;
+  --danger: #dc2626;
 
-  --shadow: 0 18px 55px rgba(0,0,0,.45);
-  --shadow2: 0 10px 22px rgba(0,0,0,.30);
+  --shadow: 0 18px 55px rgba(0,0,0,.75);
+  --shadow2: 0 10px 22px rgba(0,0,0,.55);
 
-  --r12:12px;
-  --r16:16px;
-  --r20:20px;
+  --r12: 12px;
+  --r16: 16px;
+  --r20: 20px;
 
-  --max:1100px;
-  --pad:18px;
+  --max: 1100px;
+  --pad: 18px;
 }
 
 /* reset */
 *{ margin:0; padding:0; box-sizing:border-box; }
 html,body{ height:100%; }
 body{
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
-  background:
-    radial-gradient(900px 600px at 15% 10%, rgba(56,189,248,.20), transparent 55%),
-    radial-gradient(700px 500px at 90% 18%, rgba(34,211,238,.12), transparent 60%),
-    radial-gradient(700px 500px at 55% 110%, rgba(239,68,68,.08), transparent 55%),
-    linear-gradient(180deg, var(--bg0), var(--bg1));
-  color:var(--text);
-  overflow-x:hidden;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  
+  /* FONDO DE SELVA REAL */
+  background-color: var(--bg0);
+  background-image: 
+    radial-gradient(900px 600px at 15% 10%, rgba(76, 175, 80, 0.20), transparent 55%),
+    url('../img/bg_jungle.jpg'); 
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
+  color: var(--text);
+  overflow-x: hidden;
 }
 
 a{ color:inherit; text-decoration:none; }
@@ -54,9 +59,10 @@ img{ max-width:100%; display:block; }
   position: sticky;
   top:0;
   z-index: 30;
-  backdrop-filter: blur(10px);
-  background: rgba(7,11,20,.55);
-  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(8px);
+  background: rgba(6, 18, 8, 0.85);
+  border-bottom: 2px solid #2a4025;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
 }
 
 .navbar-inner{
@@ -73,14 +79,26 @@ img{ max-width:100%; display:block; }
   gap:10px;
   font-weight:900;
   letter-spacing:.02em;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
 }
+
+/* Contenedor del Logo (reemplazando emoji por imagen) */
 .brand .mark{
-  width:34px; height:34px;
-  display:grid; place-items:center;
-  border-radius: 10px;
-  background: linear-gradient(135deg, rgba(56,189,248,.25), rgba(34,211,238,.10));
-  border: 1px solid rgba(56,189,248,.25);
-  box-shadow: 0 0 18px rgba(56,189,248,.12);
+  width:36px; height:36px;
+  border-radius: 8px;
+  
+  /* === INTEGRACIÓN DEL LOGO === */
+  /* Reemplaza con la ruta de tu logo recortado */
+  background-image: url('../img/logo_dino.png'); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  
+  /* Mantener estilos de borde y sombra anteriores */
+  border: 2px solid #78350f;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+  overflow: hidden; /* Asegura que la imagen no se salga */
 }
 
 .nav-links{
@@ -91,16 +109,21 @@ img{ max-width:100%; display:block; }
   color: var(--muted);
   font-weight: 700;
   font-size: 14px;
+  text-transform: uppercase;
 }
 
 .nav-links a{
-  padding: 8px 10px;
-  border-radius: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
   transition: .15s ease;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
 .nav-links a:hover{
-  color: var(--text);
-  background: rgba(148,163,184,.08);
+  color: var(--primary);
+  background: rgba(245, 158, 11, 0.1);
+}
+.nav-links a[aria-current="page"] {
+  color: var(--primary);
 }
 
 .nav-right{
@@ -114,45 +137,55 @@ img{ max-width:100%; display:block; }
   align-items:center;
   justify-content:center;
   gap:10px;
-  padding: 10px 14px;
-  border-radius: 12px;
+  padding: 10px 16px;
+  border-radius: 8px;
   font-weight: 900;
   font-size: 14px;
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   cursor:pointer;
   transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
-.btn:hover{ transform: translateY(-1px); }
+.btn:hover{ transform: translateY(-2px); }
 .btn:active{ transform: translateY(0px); }
 
 .btn-primary{
-  color:#06101d;
+  color: #fff;
   background: linear-gradient(135deg, var(--primary), var(--primary2));
-  box-shadow: 0 0 25px rgba(56,189,248,.18);
+  border-color: #92400e;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+}
+
 .btn-ghost{
   color: var(--text);
-  background: rgba(148,163,184,.06);
-  border-color: rgba(148,163,184,.18);
+  background: rgba(45, 74, 34, 0.5);
+  border-color: rgba(76, 175, 80, 0.4);
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
 .btn-ghost:hover{
-  background: rgba(148,163,184,.10);
+  background: rgba(76, 175, 80, 0.4);
+  border-color: rgba(76, 175, 80, 0.8);
 }
 
 /* ========= Hero ========= */
 .hero{
-  padding: 34px 0 10px;
+  padding: 40px 0 20px;
 }
 
 .hero-card{
   border-radius: var(--r20);
-  border: 1px solid rgba(56,189,248,.18);
+  border: 3px solid #2a4025;
   background:
-    radial-gradient(900px 520px at 15% 20%, rgba(56,189,248,.17), transparent 55%),
-    radial-gradient(700px 520px at 90% 30%, rgba(34,211,238,.10), transparent 60%),
-    linear-gradient(180deg, rgba(18,27,51,.82), rgba(15,23,42,.72));
+    radial-gradient(900px 520px at 15% 20%, rgba(76, 175, 80, 0.2), transparent 55%),
+    linear-gradient(180deg, rgba(20, 43, 22, 0.85), rgba(10, 25, 12, 0.95));
+  backdrop-filter: blur(4px);
   box-shadow: var(--shadow);
-  padding: 26px;
+  padding: 36px;
   overflow:hidden;
   position:relative;
 }
@@ -162,101 +195,119 @@ img{ max-width:100%; display:block; }
   position:absolute;
   inset:-2px;
   background:
-    radial-gradient(400px 200px at 25% 30%, rgba(56,189,248,.10), transparent 65%),
-    radial-gradient(350px 200px at 80% 35%, rgba(239,68,68,.06), transparent 60%);
+    radial-gradient(400px 200px at 25% 30%, rgba(245, 158, 11, 0.15), transparent 65%);
   pointer-events:none;
 }
 
 .hero h1{
-  font-size: clamp(28px, 3.2vw, 46px);
-  line-height: 1.05;
+  font-size: clamp(32px, 4vw, 52px);
+  line-height: 1.1;
   letter-spacing: -.02em;
+  color: var(--primary);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
 }
 .hero p{
-  margin-top: 10px;
-  color: var(--muted);
-  font-size: 15px;
+  margin-top: 14px;
+  color: var(--text);
+  font-size: 16px;
   max-width: 720px;
+  line-height: 1.5;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
 .hero-actions{
   display:flex;
-  gap:10px;
+  gap:12px;
   flex-wrap:wrap;
-  margin-top: 16px;
+  margin-top: 24px;
 }
 
 /* ========= Sections ========= */
 .section{
-  padding: 18px 0;
+  padding: 24px 0;
 }
 .section-title{
   display:flex;
   align-items:flex-end;
   justify-content:space-between;
   gap:12px;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
+  border-bottom: 2px solid rgba(76, 175, 80, 0.3);
+  padding-bottom: 8px;
+  background: rgba(0,0,0,0.2);
+  padding: 10px;
+  border-radius: 8px;
 }
 .section-title h2{
-  font-size: 18px;
-  letter-spacing:.01em;
+  font-size: 20px;
+  letter-spacing:.02em;
+  color: var(--primary);
+  text-transform: uppercase;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
 }
 .section-title .hint{
   color: var(--muted);
   font-size: 13px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
 
-/* ========= Grid + Cards ========= */
+/* ========= Grid + Cards (Efecto Madera) ========= */
 .grid{
   display:grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
 }
 
 .card{
-  background: linear-gradient(180deg, rgba(18,27,51,.92), rgba(15,23,42,.82));
-  border: 1px solid rgba(148,163,184,.14);
-  border-radius: var(--r16);
+  /* Textura de tablón de madera */
+  background: linear-gradient(180deg, var(--card2), var(--card));
+  border: 2px solid #27170a;
+  border-bottom-width: 6px;
+  border-radius: var(--r12);
   overflow:hidden;
   box-shadow: var(--shadow2);
-  transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
   position:relative;
 }
 .card:hover{
-  transform: translateY(-3px);
-  border-color: rgba(56,189,248,.30);
-  box-shadow: 0 0 22px rgba(56,189,248,.13), var(--shadow2);
+  transform: translateY(-5px);
+  border-color: var(--primary);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.8), 0 0 15px rgba(245, 158, 11, 0.2);
 }
 
 .card-cover{
-  height: 150px;
-  background: rgba(148,163,184,.06);
+  height: 160px;
+  background: #111;
+  border-bottom: 2px solid #27170a;
 }
 .card-cover img{
   width:100%;
   height:100%;
   object-fit: cover;
-  filter: saturate(1.05) contrast(1.02);
+  filter: saturate(1.1) contrast(1.1);
 }
 
 .card-body{
-  padding: 14px;
+  padding: 16px;
 }
 .card-title{
   font-weight: 900;
-  font-size: 16px;
+  font-size: 18px;
   margin-bottom: 6px;
+  color: var(--text);
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
 .card-text{
   color: var(--muted);
-  font-size: 13px;
-  min-height: 32px;
+  font-size: 14px;
+  min-height: 36px;
+  line-height: 1.4;
 }
 
 .card-meta{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  margin-top: 10px;
+  margin-top: 12px;
   gap:10px;
 }
 
@@ -264,27 +315,53 @@ img{ max-width:100%; display:block; }
   display:inline-flex;
   align-items:center;
   gap:8px;
-  padding: 7px 10px;
-  border-radius: 999px;
-  background: rgba(148,163,184,.08);
-  border: 1px solid rgba(148,163,184,.18);
-  color: #cbd5e1;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: rgba(10, 25, 12, 0.7);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+  color: #cddcb4;
   font-size: 12px;
   font-weight: 800;
+  text-transform: uppercase;
 }
 
 .badge{
   position:absolute;
-  top:10px;
-  left:10px;
-  background: rgba(56,189,248,.18);
-  border: 1px solid rgba(56,189,248,.28);
-  color: var(--text);
-  padding: 6px 10px;
-  border-radius: 999px;
+  top:12px;
+  left:12px;
+  background: rgba(245, 158, 11, 0.95);
+  border: 2px solid #92400e;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 900;
-  backdrop-filter: blur(6px);
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+}
+
+/* --- Game logos inside cards --- */
+.card-logo{
+  position:absolute;
+  right: 12px;
+  top: 12px;
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  background: var(--card);
+  border: 2px solid #27170a;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.7);
+}
+
+.card-logo img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 4px;
 }
 
 /* ========= Game page ========= */
@@ -293,25 +370,33 @@ img{ max-width:100%; display:block; }
   align-items:flex-start;
   justify-content:space-between;
   gap:12px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: linear-gradient(180deg, var(--card2), var(--card));
+  border: 2px solid #27170a;
+  border-radius: var(--r12);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 .game-header h2{
-  font-size: 22px;
+  font-size: 24px;
+  color: var(--primary);
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
 .game-sub{
-  color: var(--muted);
+  color: var(--text);
   margin-top: 6px;
   font-size: 14px;
 }
 .game-frame{
-  border-radius: var(--r16);
-  border: 1px solid rgba(56,189,248,.20);
+  border-radius: var(--r12);
+  border: 4px solid #27170a;
   overflow:hidden;
-  box-shadow: var(--shadow2);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  background: #000;
 }
 iframe{
   width: 100%;
-  height: 560px;
+  height: 850px; /* Aumentado de 580px a 850px para que quepa todo el ajedrez */
   border: 0;
   display:block;
 }
@@ -322,64 +407,42 @@ iframe{
   border-collapse: collapse;
 }
 .table th, .table td{
-  padding: 12px 12px;
-  border-bottom: 1px solid rgba(148,163,184,.12);
-  font-size: 13px;
+  padding: 14px 12px;
+  border-bottom: 1px solid rgba(76, 175, 80, 0.2);
+  font-size: 14px;
 }
 .table th{
   text-align:left;
-  color: var(--muted);
-  background: rgba(15,23,42,.35);
+  color: var(--primary);
+  background: rgba(10, 25, 12, 0.8);
   font-weight: 900;
+  text-transform: uppercase;
 }
 .table td:last-child, .table th:last-child{
   text-align:right;
   font-weight: 900;
 }
 .table tr:hover td{
-  background: rgba(148,163,184,.05);
+  background: rgba(76, 175, 80, 0.1);
 }
 .table a{
-  color: var(--primary);
+  color: #fff;
   font-weight: 900;
+  transition: color 0.2s;
+}
+.table a:hover {
+  color: var(--primary);
 }
 
-/* ========= Footer spacing ========= */
-.spacer{ height: 22px; }
+/* ========= Misc & Spacing ========= */
+.spacer{ height: 24px; }
 
-/* ========= Responsive ========= */
+.pill-ok { border-color: rgba(76, 175, 80, 0.6) !important; background: rgba(76, 175, 80, 0.25) !important; color: #a5d6a7 !important; }
+.pill-bad { border-color: rgba(220, 38, 38, 0.6) !important; background: rgba(220, 38, 38, 0.25) !important; color: #fca5a5 !important; }
+
+/* Y busca la sección @media abajo del todo y asegúrate de que quede así: */
 @media (max-width: 720px){
   .navbar-inner{ padding: 12px 0; }
-  iframe{ height: 520px; }
+  iframe{ height: 1000px; } /* Aún más alto en móviles porque se apila */
+  .game-header { flex-direction: column; }
 }
-/* --- Game logos inside cards (uniform size) --- */
-.card-logo{
-  position:absolute;
-  right: 10px;
-  top: 10px;
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: rgba(7,11,20,.55);
-  border: 1px solid rgba(148,163,184,.22);
-  display:grid;
-  place-items:center;
-  overflow:hidden;
-  backdrop-filter: blur(6px);
-}
-
-.card-logo img{
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  padding: 6px;
-}
-
-/* Covers todos iguales */
-.card-cover{ height: 160px; }
-.card-cover img{
-  width:100%;
-  height:100%;
-  object-fit: cover;
-}
-

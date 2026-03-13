@@ -4,6 +4,7 @@ const arena = document.getElementById("arena");
 const overlay = document.getElementById("overlay");
 const ovTitle = document.getElementById("ovTitle");
 const ovSub = document.getElementById("ovSub");
+const ovRules = document.getElementById("ovRules"); // Añadido
 const btnStart = document.getElementById("btnStart");
 const btnReset = document.getElementById("btnReset");
 
@@ -44,10 +45,8 @@ function removeTarget(){
 
 function spawnTarget(){
   removeTarget();
-
   const rect = arena.getBoundingClientRect();
   const pad = 36;
-
   const x = rand(pad, rect.width - pad);
   const y = rand(pad, rect.height - pad);
 
@@ -68,10 +67,11 @@ function spawnTarget(){
   targetEl = t;
 }
 
-function showOverlay(title, sub){
+function showOverlay(title, sub, showRules = false){
   overlay.style.display = "flex";
   ovTitle.textContent = title;
   ovSub.textContent = sub;
+  ovRules.style.display = showRules ? "block" : "none"; // Control de reglas
 }
 
 function hideOverlay(){
@@ -89,34 +89,31 @@ function endGame(){
     localStorage.setItem(SCORE_KEY, String(best));
   }
 
-  showOverlay("🏁 Fin", `Tu resultado: ${hits} aciertos · ${miss} fallos`);
-  btnStart.textContent = "▶ Jugar otra";
+  if (window.parent && window.parent.saveScoreFromGame) {
+    window.parent.saveScoreFromGame("aim_trainer", hits);
+  }
+
+  showOverlay("🏁 Fin de la Caza", `Aciertos: ${hits} · Fallos: ${miss}`, false);
+  btnStart.textContent = "▶ Reintentar";
   updateHUD();
 }
 
 function tick(){
   if (!running || paused) return;
-
   timeLeft = clamp(timeLeft - 0.1, 0, 999);
   updateHUD();
-
-  if (timeLeft <= 0.0001){
-    endGame();
-  }
+  if (timeLeft <= 0.0001) endGame();
 }
 
 function start(){
   running = true;
   paused = false;
-
   timeLeft = 30.0;
   hits = 0;
   miss = 0;
-
   updateHUD();
   hideOverlay();
   spawnTarget();
-
   clearInterval(timerId);
   timerId = setInterval(tick, 100);
 }
@@ -126,47 +123,36 @@ function reset(){
   paused = false;
   clearInterval(timerId);
   timerId = null;
-
   timeLeft = 30.0;
   hits = 0;
   miss = 0;
-
   removeTarget();
-  showOverlay("Listo", "30s · Haz click en los targets lo más rápido posible");
+  showOverlay("📜 Reglas de la Caza", "¿Listo para demostrar tu puntería?", true);
   btnStart.textContent = "▶ Empezar";
   updateHUD();
 }
 
-// click en arena cuenta como fallo (si no has clicado target)
 arena.addEventListener("click", () => {
   if (!running || paused) return;
   miss++;
   updateHUD();
 });
 
-// botones
 btnStart.addEventListener("click", start);
 btnReset.addEventListener("click", reset);
 
-// teclado
 document.addEventListener("keydown", (e) => {
-  // evitar scroll por espacio
   if (e.key === " ") e.preventDefault();
-
   if (e.key === " "){
     if (!running) return;
     paused = !paused;
     if (paused){
-      showOverlay("⏸️ Pausa", "Pulsa ESPACIO para continuar");
+      showOverlay("⏸️ Pausa", "Pulsa ESPACIO para continuar", false);
     }else{
       hideOverlay();
     }
   }
-
-  if (e.key.toLowerCase() === "r"){
-    reset();
-  }
+  if (e.key.toLowerCase() === "r") reset();
 }, { passive:false });
 
-// init
 reset();

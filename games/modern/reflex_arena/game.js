@@ -9,8 +9,17 @@ const elSub   = document.getElementById("sub");
 const elPPick = document.getElementById("pPick");
 const elCPick = document.getElementById("cPick");
 const elLog   = document.getElementById("log");
-const buttons = Array.from(document.querySelectorAll(".btn"));
 
+// Importante: seleccionamos solo los botones de las jugadas, no el del overlay
+const buttons = Array.from(document.querySelectorAll(".controls .btn"));
+
+// Elementos del Overlay
+const overlay = document.getElementById("overlay");
+const ovTitle = document.getElementById("ovTitle");
+const ovSub = document.getElementById("ovSub");
+const startBtn = document.getElementById("startBtn");
+
+let gameStarted = false;
 let paused = false;
 let round = 1;      // 1..5
 let pWins = 0;
@@ -19,14 +28,24 @@ let matchWins = 0;  // racha de matches ganados
 let best = Number(localStorage.getItem(SCORE_KEY) || 0);
 elBest.textContent = best;
 
+// Cambiamos papel y tijera por hoja y garra
 const PICK_EMOJI = {
   rock: "🪨",
-  paper: "📄",
-  scissors: "✂️"
+  paper: "🍃",
+  scissors: "🐾"
 };
 
+// --- Nuevo Evento de Inicio ---
+startBtn.addEventListener("click", () => {
+  overlay.style.display = "none";
+  startBtn.style.display = "none"; // Ocultamos el botón de empezar
+  gameStarted = true;
+  logLine("🎮 ¡El match ha comenzado!");
+  updateUI();
+});
+// ------------------------------
+
 function cpuPick() {
-  // IA simple: random
   const opts = ["rock","paper","scissors"];
   return opts[Math.floor(Math.random()*opts.length)];
 }
@@ -59,7 +78,9 @@ function updateUI(){
   elBest.textContent = String(best);
 
   document.body.classList.toggle("paused", paused);
-  setButtons(!paused && !isMatchOver());
+  
+  // Solo activamos botones si el juego ha empezado, no está pausado y no ha terminado
+  setButtons(gameStarted && !paused && !isMatchOver());
 }
 
 function isMatchOver(){
@@ -79,7 +100,6 @@ function startNewMatch(){
 }
 
 function endMatch(){
-  // Determinar ganador
   const playerWon = pWins > cWins;
 
   if (playerWon) {
@@ -88,25 +108,35 @@ function endMatch(){
     elStatus.textContent = `🏆 ¡Ganaste el match! (Racha: ${matchWins})`;
     elSub.textContent = "Pulsa R para reiniciar el match";
   } else {
+    checkAndSaveBest();
     matchWins = 0;
     logLine("💀 Match perdido. Racha reiniciada a 0");
     elStatus.textContent = "💀 Perdiste el match. Racha: 0";
     elSub.textContent = "Pulsa R para reiniciar el match";
   }
 
-  // Actualiza best (racha máxima de matches ganados)
-  if (matchWins > best) {
-    best = matchWins;
-    localStorage.setItem(SCORE_KEY, String(best));
-    elBest.textContent = String(best);
-    logLine(`✨ Nuevo récord: ${best}`);
+  if (playerWon) {
+      checkAndSaveBest();
   }
 
   updateUI();
 }
 
+function checkAndSaveBest() {
+  if (matchWins > best) {
+    best = matchWins;
+    localStorage.setItem(SCORE_KEY, String(best));
+    elBest.textContent = String(best);
+    logLine(`✨ Nuevo récord local: ${best}`);
+  }
+  
+  if (window.parent && window.parent.saveScoreFromGame && matchWins > 0) {
+    window.parent.saveScoreFromGame("reflex_arena", matchWins);
+  }
+}
+
 function playRound(player){
-  if (paused || isMatchOver()) return;
+  if (paused || isMatchOver() || !gameStarted) return;
 
   const cpu = cpuPick();
   const r = result(player, cpu);
@@ -132,36 +162,41 @@ function playRound(player){
 }
 
 function togglePause(){
+  if (!gameStarted || isMatchOver()) return; // No pausar si no ha empezado o ya terminó
+  
   paused = !paused;
   if (paused) {
+    ovTitle.textContent = "PAUSA";
+    ovSub.innerHTML = "Pulsa <b>ESPACIO</b> para continuar";
+    startBtn.style.display = "none";
+    overlay.style.display = "flex"; // Mostramos el overlay en pausa
     elStatus.textContent = "⏸️ Pausa";
-    elSub.textContent = "Pulsa ESPACIO para continuar";
   } else {
+    overlay.style.display = "none";
     elStatus.textContent = "Elige tu jugada";
-    elSub.textContent = "Best of 5 · Ganas el match si llegas a 3";
   }
   updateUI();
 }
 
 function resetMatch(){
+  if (!gameStarted) return;
   startNewMatch();
 }
 
-// Eventos botones
 buttons.forEach(btn => {
   btn.addEventListener("click", () => playRound(btn.dataset.pick));
 });
 
-// Teclado: espacio pausa, R reset
 document.addEventListener("keydown", (e) => {
   const block = ["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"," "];
   if (block.includes(e.key)) e.preventDefault();
+
+  if (!gameStarted) return; // Ignorar teclas si no hemos dado a empezar
 
   if (e.key === " ") togglePause();
   if (e.key.toLowerCase() === "r") resetMatch();
 }, { passive:false });
 
-// Init
 elLog.innerHTML = "";
-logLine("🎮 Listo: elige tu jugada.");
+logLine("🎮 Listo: pulsa Empezar para jugar.");
 startNewMatch();

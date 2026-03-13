@@ -1,22 +1,42 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Snake - GameHub</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Snake - RankArena</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">Titan Snake</div>
+      <div class="stats">
+        <span>Score: <b id="score">0</b></span>
+        <span>Best: <b id="bestScore">0</b></span>
+      </div>
+    </div>
 
-<div class="game-container">
-    <h1>🐍 Snake</h1>
-  <p>
-    Puntuación: <span id="score">0</span> |
-    Récord: <span id="bestScore">0</span>
-  </p>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
-    <button id="restartBtn">Reiniciar</button>
-</div>
+    <div class="arena">
+      <canvas id="gameCanvas" width="400" height="400"></canvas>
+      
+      <div class="overlay" id="overlay">
+        <div class="big" id="ovTitle">TITAN SNAKE</div>
+        <div class="sub" id="ovSub">
+          Mueve la serpiente con las <b>flechas</b>.<br>
+          Pulsa <b>ESPACIO</b> para pausar el juego.<br><br>
+          ¡Cómete las manzanas para crecer y<br>evita chocar contra los muros o tu propia cola!
+        </div>
+        <button class="btn primary" id="startBtn">▶ Empezar</button>
+        <button class="btn primary" id="restartBtn" style="display:none;">↻ Reiniciar</button>
+      </div>
+    </div>
 
-<script src="game.js"></script>
+    <div class="help">
+      <div>Controles: <b>Flechas</b> para moverte · <b>ESPACIO</b> pausa</div>
+      <div class="mini">Cómete las manzanas prehistóricas para crecer y sumar puntos.</div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
 </body>
 </html>

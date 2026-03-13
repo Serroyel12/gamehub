@@ -122,13 +122,13 @@ function update(){
 
   // dificultad progresiva
   timeAlive++;
-  if (timeAlive % 180 === 0) {         // cada 3 segundos aprox (a 60fps)
+  if (timeAlive % 180 === 0) {        // cada 3 segundos aprox (a 60fps)
     meteorSpeed += 0.15;
     spawnEvery = Math.max(22, spawnEvery - 1);
   }
 
   // score por supervivencia
-  if (timeAlive % 6 === 0) {           // ~10 puntos/seg
+  if (timeAlive % 6 === 0) {          // ~10 puntos/seg
     score++;
     uiScore.textContent = score;
   }
@@ -178,57 +178,69 @@ function gameOver(){
     localStorage.setItem(SCORE_KEY, String(best));
     uiBest.textContent = best;
   }
+
+  // ===== NUEVO: AVISAR AL PADRE PARA SUBIR A FIREBASE =====
+  if (window.parent && window.parent.saveScoreFromGame) {
+    window.parent.saveScoreFromGame("meteor_dodge", score);
+  }
+  // ========================================================
 }
 
 function draw(){
-  // fondo con “estrellas”
-  ctx.fillStyle = "#0b1224";
+  // fondo con “estrellas” (ahora chispas volcánicas)
+  ctx.fillStyle = "#061208";
   ctx.fillRect(0,0,W,H);
 
-  // estrellas pseudo
-  ctx.fillStyle = "rgba(148,163,184,0.35)";
+  // chispas de fondo
+  ctx.fillStyle = "rgba(245, 158, 11, 0.25)";
   for(let i=0;i<40;i++){
     const x = (i*97 + timeAlive*2) % W;
     const y = (i*53 + timeAlive*3) % H;
     ctx.fillRect(x, y, 2, 2);
   }
 
-  // nave
+  // nave (ahora parece un ámbar ovalado)
   ctx.save();
   ctx.translate(ship.x, ship.y);
-  ctx.fillStyle = "#38bdf8";
+  ctx.fillStyle = "#f59e0b"; // Ámbar principal
   ctx.beginPath();
-  ctx.moveTo(-ship.w/2, ship.h/2);
-  ctx.lineTo(0, -ship.h/2);
-  ctx.lineTo(ship.w/2, ship.h/2);
-  ctx.closePath();
+  ctx.ellipse(0, 0, ship.w/2, ship.h/2, 0, 0, Math.PI*2);
   ctx.fill();
-  // “cabina”
-  ctx.fillStyle = "rgba(15,23,42,0.6)";
-  ctx.fillRect(-6, 2, 12, 6);
+  
+  // Reflejo del ámbar
+  ctx.fillStyle = "rgba(255,255,255,0.4)";
+  ctx.beginPath();
+  ctx.ellipse(-ship.w/6, -ship.h/4, ship.w/5, ship.h/6, Math.PI/4, 0, Math.PI*2);
+  ctx.fill();
   ctx.restore();
 
-  // meteoritos
+  // meteoritos (Rocas volcánicas ardientes)
   for(const m of meteors){
     ctx.save();
     ctx.translate(m.x, m.y);
     ctx.rotate(m.rot);
-    ctx.fillStyle = "#94a3b8";
+    
+    // Halo de fuego
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = "#dc2626";
+    
+    ctx.fillStyle = "#27170a"; // Roca oscura
     ctx.beginPath();
     ctx.arc(0,0,m.r,0,Math.PI*2);
     ctx.fill();
 
-    // cráteres
-    ctx.fillStyle = "rgba(15,23,42,0.35)";
-    ctx.beginPath(); ctx.arc(-m.r*0.2, -m.r*0.1, m.r*0.25, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(m.r*0.25, m.r*0.15, m.r*0.18, 0, Math.PI*2); ctx.fill();
+    // Grietas de lava
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "#f59e0b"; // Naranja magma
+    ctx.beginPath(); ctx.arc(-m.r*0.2, -m.r*0.1, m.r*0.15, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(m.r*0.25, m.r*0.15, m.r*0.12, 0, Math.PI*2); ctx.fill();
     ctx.restore();
   }
 
-  // partículas
-  ctx.fillStyle = "rgba(239,68,68,0.9)";
+  // partículas (Fuego/Lava)
+  ctx.fillStyle = "rgba(245, 158, 11, 0.9)";
   for(const p of particles){
-    ctx.fillRect(p.x, p.y, 2, 2);
+    ctx.fillRect(p.x, p.y, 3, 3);
   }
 
   if (paused) {
@@ -241,14 +253,14 @@ function draw(){
 }
 
 function overlay(title, subtitle){
-  ctx.fillStyle = "rgba(15,23,42,0.65)";
+  ctx.fillStyle = "rgba(10, 25, 12, 0.75)";
   ctx.fillRect(0,0,W,H);
-  ctx.fillStyle = "#f1f5f9";
+  ctx.fillStyle = "#f59e0b";
   ctx.textAlign = "center";
   ctx.font = "bold 34px Arial";
   ctx.fillText(title, W/2, H/2 - 10);
   ctx.font = "16px Arial";
-  ctx.fillStyle = "#cbd5e1";
+  ctx.fillStyle = "#fdf8e1";
   ctx.fillText(subtitle, W/2, H/2 + 22);
   ctx.textAlign = "start";
 }

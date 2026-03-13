@@ -2,10 +2,70 @@
 .board {
   width: min(520px, 90vw);
   max-width: 520px;
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, .35);
-  background: rgba(15, 23, 42, .35);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .8);
+  background: #112a16;
+  border: 4px solid #362210;
+}
+
+/* --- NUEVO: Paneles Arrastrables --- */
+.draggable-panel {
+  background: rgba(10, 25, 12, 0.6);
+  backdrop-filter: blur(4px);
+  padding: 16px;
+  border-radius: 16px;
+  border: 2px solid #362210;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  z-index: 50; /* Por encima de lo normal */
+}
+
+.drag-handle {
+  cursor: grab;
+  text-align: center;
+  color: #f59e0b;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  padding-bottom: 12px;
+  text-transform: uppercase;
+  user-select: none;
+}
+.drag-handle:active { cursor: grabbing; }
+
+/* --- Etiquetas de Jugadores y ELO --- */
+.player-tag {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(180deg, #4d331a, #362210);
+  border: 2px solid #27170a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fdf8e1;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+}
+.player-tag .p-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 900;
+  font-size: 15px;
+}
+.player-tag .p-left img {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: contain;
+  background: rgba(0,0,0,0.3);
+}
+.player-tag .p-right {
+  font-size: 13px;
+  color: #9ba896;
+}
+.player-tag .p-right b {
+  color: #f59e0b;
+  font-size: 18px;
 }
 
 /* --- Caja de Estado FEN --- */
@@ -15,102 +75,174 @@
   resize: none;
   padding: 12px;
   border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, .2);
-  background: rgba(15, 23, 42, .55);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  background: rgba(6, 18, 8, 0.55);
   color: var(--text);
   outline: none;
 }
 
-/* --- Scroll Personalizado (Chrome, Edge, Safari) --- */
+/* --- Scroll Personalizado --- */
 .side::-webkit-scrollbar,
 .moves::-webkit-scrollbar,
-#chatMessages::-webkit-scrollbar {
-  width: 10px;
-}
+#chatMessages::-webkit-scrollbar { width: 8px; }
 
 .side::-webkit-scrollbar-thumb,
 .moves::-webkit-scrollbar-thumb,
 #chatMessages::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, .25);
-  border-radius: 10px;
+  background: #4d331a;
+  border-radius: 8px;
 }
 
 .side::-webkit-scrollbar-track,
 .moves::-webkit-scrollbar-track,
-#chatMessages::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, .10);
+#chatMessages::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+
+/* --- CHAT FLOTANTE Y ARRASTRABLE --- */
+.floating-chat {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 350px;
+  z-index: 100; /* Siempre por encima de todo */
+  box-shadow: 0 15px 50px rgba(0,0,0,0.9);
+  border: 2px solid #f59e0b; /* Borde ámbar brillante */
+  background: rgba(10, 25, 12, 0.95);
+  padding: 0;
 }
 
-/* --- Scroll Personalizado (Firefox) --- */
-.side,
-.moves,
-#chatMessages {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, .25) rgba(15, 23, 42, .10);
+.drag-handle-chat {
+  cursor: grab;
+  background: #362210;
+  color: #f59e0b;
+  font-weight: 900;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 12px;
+  border-radius: 12px 12px 0 0;
+  font-size: 14px;
+  user-select: none;
 }
+.drag-handle-chat:active { cursor: grabbing; }
 
-/* --- CHAT: Estructura Fija --- */
 .chat-wrap {
   display: flex;
   flex-direction: column;
-  height: 320px;            /* Altura fija del contenedor de chat */
-  min-height: 240px;
+  height: 280px;
   border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, .12);
-  background: rgba(15, 23, 42, .30);
-  overflow: hidden;         /* Evita que el contenido se salga del radio del borde */
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  background: rgba(6, 18, 8, 0.6);
+  overflow: hidden;
 }
 
 .chat-messages {
-  flex: 1 1 auto;           /* Toma todo el espacio sobrante */
-  overflow-y: auto;         /* Permite scroll solo en los mensajes */
+  flex: 1 1 auto;
+  overflow-y: auto;
   padding: 10px 8px;
   display: flex;
   flex-direction: column;
-  gap: 8px;                 /* Espacio entre burbujas */
+  gap: 8px;
 }
 
 .chat-composer {
-  flex: 0 0 auto;           /* No se encoge, siempre mantiene su tamaño */
+  flex: 0 0 auto;
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
   padding: 10px;
-  border-top: 1px solid rgba(148, 163, 184, .12);
-  background: rgba(2, 6, 23, .55);
-  backdrop-filter: blur(8px);
-  position: sticky;         /* Refuerzo para mantenerse al fondo */
-  bottom: 0;
+  border-top: 1px solid rgba(76, 175, 80, 0.3);
+  background: rgba(10, 25, 12, 0.9);
 }
 
-/* --- Input y Botones del Chat --- */
 .chat-input {
   flex: 1;
-  min-width: 160px;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, .2);
-  background: rgba(15, 23, 42, .55);
-  color: var(--text);
+  min-width: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(76, 175, 80, 0.5);
+  background: rgba(6, 18, 8, 0.8);
+  color: #fff;
   outline: none;
-  transition: all 0.2s ease;
 }
 
 .chat-input:focus {
-  border-color: rgba(56, 189, 248, .55);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, .12);
-}
-
-/* Estilo para las burbujas dentro de los mensajes */
-.chat-item {
-  margin-bottom: 4px;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
 }
 
 .chat-bubble {
   display: inline-block;
   padding: 8px 14px;
-  border-radius: 14px;
+  border-radius: 12px;
   font-size: 14px;
   max-width: 85%;
   word-wrap: break-word;
+}
+
+/* En móvil el chat deja de flotar y se pone abajo del todo */
+@media (max-width: 980px) {
+  .floating-chat {
+    position: static;
+    width: 100%;
+    margin-top: 20px;
+  }
+}
+/* --- OVERLAY DE INSTRUCCIONES --- */
+.instructions-overlay {
+  position: fixed;
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0;
+  background: rgba(6, 18, 8, 0.85); /* Fondo oscuro selva */
+  backdrop-filter: blur(8px); /* Desenfoca el juego de fondo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* Por encima de TODO */
+}
+
+.instructions-card {
+  max-width: 550px;
+  width: 90%;
+  padding: 30px;
+  background: linear-gradient(180deg, #112a16, #061208); /* Fondo verde musgo */
+  border: 3px solid #f59e0b; /* Borde ámbar brillante */
+  box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+}
+
+.instructions-card h2 {
+  color: #f59e0b;
+  margin-bottom: 20px;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 24px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.instructions-card ul {
+  color: #fdf8e1;
+  font-size: 16px;
+  line-height: 1.6;
+  padding-left: 20px;
+  list-style-type: none; /* Quitamos los puntos clásicos */
+}
+
+.instructions-card li {
+  margin-bottom: 14px;
+  position: relative;
+}
+
+/* Puntitos personalizados para la lista */
+.instructions-card li::before {
+  content: "🐾"; 
+  position: absolute;
+  left: -28px;
+  top: 2px;
+  font-size: 14px;
+}
+
+.instructions-card li b {
+  color: #9ba896;
+  text-transform: uppercase;
+  font-size: 14px;
 }

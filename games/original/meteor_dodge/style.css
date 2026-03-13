@@ -1,7 +1,7 @@
 body{
   margin:0;
-  background:#0f172a;
-  color:#f1f5f9;
+  background:#061208; /* Verde selva profundo */
+  color:#fdf8e1;
   font-family: Arial, sans-serif;
   display:flex;
   justify-content:center;
@@ -16,46 +16,133 @@ body{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  background:#1e293b;
+  background:#362210; /* Madera oscura */
+  border: 2px solid #27170a;
   padding:12px 14px;
   border-radius:12px;
-  box-shadow:0 0 12px rgba(0,0,0,.45);
+  box-shadow:0 6px 15px rgba(0,0,0,.6);
   margin-bottom:12px;
 }
 
 .title{
   font-size:18px;
   font-weight:800;
+  color: #f59e0b; /* Ámbar */
 }
 
 .stats{
   display:flex;
   gap:14px;
-  color:#cbd5e1;
+  color:#9ba896;
+}
+.stats b {
+  color: #fff;
 }
 
 canvas{
   width:100%;
   height:auto;
-  background:#0b1224;
-  border:3px solid #38bdf8;
+  background:#112a16;
+  border:4px solid #4d331a; /* Madera clara */
   border-radius:12px;
-  box-shadow:0 0 18px rgba(56,189,248,.15);
+  box-shadow:0 0 25px rgba(0,0,0,.8);
   display:block;
 }
 
 .help{
   margin-top:10px;
-  background:rgba(30,41,59,.6);
-  border:1px solid rgba(148,163,184,.2);
+  background:rgba(10, 25, 12, 0.8);
+  border:1px solid rgba(76, 175, 80, 0.3);
   padding:10px 12px;
   border-radius:12px;
-  color:#cbd5e1;
+  color:#cddcb4;
   font-size:14px;
+  text-align: center;
 }
 
 .mini{
   margin-top:6px;
-  color:#94a3b8;
+  color:#9ba896;
   font-size:13px;
+}
+/* EL RESTO DE TU CSS DE VOLCANO DODGE SIGUE ARRIBA (body, wrap, canvas, etc.) */
+
+/* --- OVERLAY DE INSTRUCCIONES --- */
+.instructions-overlay {
+  position: fixed;
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0;
+  background: rgba(6, 18, 8, 0.85); /* Fondo oscuro selva */
+  backdrop-filter: blur(6px); /* Desenfoca el juego de fondo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* Por encima de TODO */
+}
+
+.instructions-card {
+  max-width: 500px;
+  width: 90%;
+  padding: 30px;
+  background: linear-gradient(180deg, #112a16, #061208); /* Fondo verde musgo */
+  border: 3px solid #f59e0b; /* Borde ámbar brillante */
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+}
+
+.instructions-card h2 {
+  color: #f59e0b;
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 24px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.instructions-card ul {
+  color: #fdf8e1;
+  font-size: 15px;
+  line-height: 1.6;
+  padding-left: 20px;
+  list-style-type: none;
+  margin: 0;
+}
+
+.instructions-card li {
+  margin-bottom: 14px;
+  position: relative;
+}
+
+.instructions-card li::before {
+  content: "🐾"; 
+  position: absolute;
+  left: -28px;
+  top: 2px;
+  font-size: 14px;
+}
+
+/* Botones para el overlay */
+.btn {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 900;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: transform 0.1s;
+  color: #fff;
+  font-family: inherit;
+}
+
+.primary {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border: 2px solid #92400e;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
 }

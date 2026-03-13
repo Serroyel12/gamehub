@@ -7,9 +7,27 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+  <div id="instructionsOverlay" class="instructions-overlay">
+    <div class="instructions-card card">
+      <h2>📜 Reglas de Volcano Dodge</h2>
+      
+      <ul style="margin-bottom: 20px;">
+        <li><b style="color:#f59e0b; font-size:16px;">🌋 El Peligro:</b> Eres un valioso núcleo de Ámbar atrapado en una lluvia de rocas volcánicas.</li>
+        <li><b style="color:#f59e0b; font-size:16px;">🕹️ Controles:</b> Usa las teclas <b>A/D</b> o las <b>Flechas Izquierda/Derecha</b> para esquivar.</li>
+        <li><b style="color:#f59e0b; font-size:16px;">⏱️ Supervivencia:</b> Cuanto más tiempo aguantes, más rápido caerán las rocas. ¡Suma puntos por cada segundo con vida!</li>
+        <li><b style="color:#f59e0b; font-size:16px;">🏆 Récord:</b> Supera tu puntuación máxima para subir puestos en el Top 10 Global.</li>
+      </ul>
+
+      <div style="text-align: center; margin-top: 24px;">
+        <button class="btn primary" id="btnStartGame" style="font-size: 18px; padding: 12px 30px;">¡ENTENDIDO, A ESQUIVAR!</button>
+      </div>
+    </div>
+  </div>
+
   <div class="wrap">
     <div class="topbar">
-      <div class="title">☄️ Meteor Dodge</div>
+      <div class="title">🌋 Volcano Dodge</div>
       <div class="stats">
         <span>Score: <b id="score">0</b></span>
         <span>Best: <b id="best">0</b></span>
@@ -20,10 +38,28 @@
 
     <div class="help">
       <div>Controles: <b>A/D</b> o <b>←/→</b> para moverte · <b>ESPACIO</b> pausa · <b>R</b> reinicia</div>
-      <div class="mini">Objetivo: esquiva meteoritos el máximo tiempo posible. Ganas puntos por supervivencia.</div>
+      <div class="mini">Objetivo: esquiva las rocas volcánicas el máximo tiempo posible.</div>
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  
   <script src="game.js"></script>
+
+  <script>
+    $(function() {
+      // 1. Simular pulsar ESPACIO al inicio para pausar el juego por debajo del cartel
+      setTimeout(() => {
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
+      }, 50);
+
+      // 2. Quitar instrucciones y reanudar al pulsar el botón
+      $("#btnStartGame").on("click", function() {
+        $("#instructionsOverlay").fadeOut(300);
+        // Volvemos a simular ESPACIO para quitar la pausa
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
+      });
+    });
+  </script>
 </body>
 </html>

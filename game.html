@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>RankArena - Juego</title>
+  <link rel="icon" type="image/png" href="assets/img/logo_dino.PNG">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="assets/css/base.css">
 
@@ -34,7 +35,7 @@
 <header class="navbar">
   <div class="container navbar-inner">
     <a class="brand" href="index.html">
-      <span class="mark">🎮</span>
+      <span class="mark"></span>
       <span>RankArena</span>
     </a>
 
@@ -57,7 +58,25 @@
   <section class="section">
     <div id="game-details"></div>
 
-    <!-- Rating -->
+    <div class="card" style="margin-top:14px; border-color: var(--primary);">
+      <div class="card-body">
+        <div class="section-title" style="margin-bottom:10px; padding-bottom:4px; border-bottom: 1px solid rgba(245, 158, 11, 0.3);">
+          <h2 style="font-size:16px; color: var(--primary);">🏆 Top 10 Jugadores</h2>
+        </div>
+        <table class="table" id="gameLeaderboardTable">
+          <thead>
+            <tr>
+              <th style="width:60px;">Pos</th>
+              <th>Jugador</th>
+              <th>Puntuación</th>
+            </tr>
+          </thead>
+          <tbody id="gameLeaderboardBody">
+            <tr><td colspan="3" class="muted" style="text-align:center;">Cargando ranking...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
     <div class="card" style="margin-top:12px;">
       <div class="card-body">
         <div class="card-title" style="font-size:14px;">⭐ Valora este juego</div>
@@ -82,7 +101,6 @@
       </div>
     </div>
 
-    <!-- Opinión -->
     <div class="card" style="padding:16px; margin-top:14px;">
       <div class="card-title">📝 Tu opinión</div>
       <div class="card-text" style="margin-bottom:10px;">
@@ -98,14 +116,12 @@
       </div>
     </div>
 
-    <!-- Opiniones públicas -->
     <div class="card" style="padding:16px; margin-top:14px;">
       <div class="card-title">💬 Opiniones de la comunidad</div>
       <div class="card-text" style="margin-bottom:10px;">Últimas reseñas</div>
       <div id="reviewsList" class="moves"></div>
     </div>
 
-    <!-- CHAT (solo para ajedrez online: se muestra solo si hay ?match=XXXX) -->
     <div class="card" id="chatCard" style="padding:16px; margin-top:14px; display:none;">
       <div class="card-title">💬 Chat de la partida</div>
       <div class="card-text" style="margin-bottom:10px;">Solo visible para los jugadores de la partida.</div>
@@ -128,15 +144,12 @@
   <div class="spacer"></div>
 </main>
 
-<!-- Base -->
 <script src="assets/js/app.js"></script>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/ui.js"></script>
 
-<!-- Tu rating (⭐) -->
 <script type="module" src="assets/js/pages/game.js"></script>
 
-<!-- Render del juego (iframe) -->
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
@@ -163,13 +176,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 </script>
 
-<!-- Auth navbar -->
 <script type="module">
   import { initNavbarAuth } from "./assets/js/nav-auth.js";
   initNavbarAuth();
 </script>
 
-<!-- Reviews: texto + lista (usa window.selectedRating) -->
 <script type="module">
   import { auth } from "./assets/js/firebase.js";
   import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
@@ -251,8 +262,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, { once:false });
   });
 </script>
-
-
 
 </body>
 </html>

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>RankArena - Juegos</title>
+  <link rel="icon" type="image/png" href="assets/img/logo_dino.PNG">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <link rel="stylesheet" href="assets/css/base.css">
@@ -89,6 +90,34 @@
     @media (max-width: 720px){
       .filters-card{ position: relative; top:auto; }
     }
+
+    /* ESTILOS REPORTE */
+    .report-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 18, 8, 0.92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+    .report-card {
+      max-width: 400px;
+      width: 100%;
+      padding: 30px;
+      background: rgba(10, 25, 12, 0.95);
+      border: 2px solid #dc2626;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 25px rgba(220, 38, 38, 0.2);
+      animation: popInReport 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      text-align: center;
+    }
+    @keyframes popInReport {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
   </style>
 </head>
 
@@ -96,7 +125,7 @@
   <header class="navbar">
     <div class="container navbar-inner">
       <a class="brand" href="index.html">
-        <span class="mark">🎮</span>
+        <span class="mark"></span>
         <span>RankArena</span>
       </a>
 
@@ -117,10 +146,9 @@
 
   <main class="container">
     <section class="section">
-
       <div class="catalog-head">
         <div class="catalog-title section-title" style="margin:0;">
-          <h2>Catálogo</h2>
+          <h2>Catálogo Oficial</h2>
           <div class="hint">Busca, filtra y entra a jugar. Las ⭐ se actualizan en tiempo real.</div>
         </div>
 
@@ -149,31 +177,134 @@
             <button class="btn btn-ghost filter-btn" data-filter="original" type="button">Original</button>
           </div>
         </div>
-
-        <div style="margin-top:10px; color: var(--muted); font-size: 13px;">
-          Tip: escribe “ajedrez”, “meteor”, “aim”… y usa los filtros para afinar.
-        </div>
       </div>
 
       <div class="spacer"></div>
-
       <div id="games-container" class="grid" aria-live="polite"></div>
-
-      <div id="no-results" class="card" style="padding:16px; display:none;">
-        <div class="card-title">Sin resultados</div>
-        <div class="card-text">Prueba otro nombre o cambia el filtro.</div>
-      </div>
-
     </section>
 
     <div class="spacer"></div>
+
+    <section class="section">
+      <div class="catalog-head" style="border-bottom: 1px solid rgba(16, 185, 129, 0.3); padding-bottom: 10px; margin-bottom: 20px;">
+        <div class="catalog-title section-title" style="margin:0;">
+          <h2 style="color: #10b981;">💡 Juegos de la Comunidad</h2>
+          <div class="hint">Títulos creados y subidos por los guerreros de RankArena.</div>
+        </div>
+        <a class="btn" style="background: #10b981; color: #fff; border: none; font-weight: bold; padding: 10px 16px;" href="creator.html">🛠️ Sube tu Juego</a>
+      </div>
+      
+      <div class="grid" id="creatorGamesGrid">
+        <p id="noGamesMsg" style="color: #9ba896; text-align: center; width: 100%; grid-column: 1 / -1; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+          Aún no hay juegos de la comunidad. ¡Sé el primero en subir uno!
+        </p>
+      </div>
+    </section>
   </main>
+
+  <button id="openReportBtn" style="position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: 2px solid #7f1d1d; border-radius: 50px; padding: 10px 20px; font-size: 14px; font-weight: 900; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4); z-index: 100; transition: transform 0.2s;">
+    🚩 Reportar
+  </button>
+
+  <div id="reportModal" class="report-overlay">
+    <div class="report-card">
+      <div style="font-size: 40px; margin-bottom: 10px;">🚨</div>
+      <h2 style="color: #ef4444; font-size: 24px; margin-bottom: 10px; text-transform: uppercase; font-weight: 900;">Centro de Reportes</h2>
+      <p style="color: #9ba896; font-size: 14px; margin-bottom: 20px;">Indica el error o comportamiento para que el administrador lo revise.</p>
+
+      <form id="reportForm" style="width: 100%; text-align: left;">
+        <div style="margin-bottom: 15px;">
+          <label style="display: block; color: #ef4444; font-weight: bold; font-size: 13px; margin-bottom: 5px; text-transform: uppercase;">Tipo de Problema</label>
+          <select id="reportType" name="tipo_problema" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid rgba(239, 68, 68, 0.5); border-radius: 8px; color: #fff; font-family: inherit;">
+            <option value="bug">🐛 Bug o error en un juego</option>
+            <option value="game">❌ Juego inapropiado o falso</option>
+            <option value="player">🤬 Comportamiento de un jugador</option>
+            <option value="other">💬 Otro motivo</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; color: #ef4444; font-weight: bold; font-size: 13px; margin-bottom: 5px; text-transform: uppercase;">Detalles</label>
+          <textarea id="reportDetails" name="detalles" rows="4" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid rgba(239, 68, 68, 0.5); border-radius: 8px; color: #fff; font-family: inherit; resize: none;" placeholder="Explica qué ha pasado..." required></textarea>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" id="cancelReportBtn" class="btn" style="flex: 1; background: transparent; color: #9ba896; border: 2px solid #9ba896;">Cancelar</button>
+          <button type="submit" class="btn primary" style="flex: 1; background: linear-gradient(135deg, #dc2626, #b91c1c); border-color: #7f1d1d;">Enviar 📨</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script src="assets/js/data.js"></script>
   <script src="assets/js/ui.js"></script>
   <script src="assets/js/app.js"></script>
-
   <script type="module" src="assets/js/pages/games.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // --- CARGAR JUEGOS DE COMUNIDAD ---
+      const creatorGrid = document.getElementById("creatorGamesGrid");
+      const noGamesMsg = document.getElementById("noGamesMsg");
+      const savedGames = JSON.parse(localStorage.getItem('rankArenaCreatorGames')) || [];
+
+      if (savedGames.length > 0) {
+        noGamesMsg.style.display = "none";
+        savedGames.forEach(game => {
+          const card = document.createElement("div");
+          card.className = "card"; 
+          card.style.borderColor = "#10b981"; 
+          card.style.display = "flex";
+          card.style.flexDirection = "column";
+          card.style.overflow = "hidden";
+          card.innerHTML = `
+            <div style="width:100%; height:160px; background: url('${game.image}') center/cover no-repeat; border-bottom: 1px solid rgba(16, 185, 129, 0.3);"></div>
+            <div style="padding: 16px; flex: 1; display: flex; flex-direction: column;">
+              <h3 style="color: #10b981; margin: 0 0 8px 0; font-size: 18px; text-transform: uppercase;">${game.title}</h3>
+              <p style="color: #9ba896; font-size: 14px; margin: 0 0 16px 0; flex: 1;">${game.description}</p>
+              <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px;">
+                <span style="color: var(--muted); font-size: 12px;">Por: <b style="color: #cddcb4;">${game.author}</b></span>
+                <button class="btn btn-primary" style="background: linear-gradient(135deg, #10b981, #047857); border-color: #064e3b; padding: 6px 12px; font-size: 13px;" onclick="alert('Demo de la comunidad.')">Jugar ▶</button>
+              </div>
+            </div>
+          `;
+          creatorGrid.appendChild(card);
+        });
+      }
+
+      // --- LÓGICA DE REPORTE ---
+      const reportBtn = document.getElementById("openReportBtn");
+      const reportModal = document.getElementById("reportModal");
+      const cancelBtn = document.getElementById("cancelReportBtn");
+      const reportForm = document.getElementById("reportForm");
+
+      reportBtn.onclick = () => { reportModal.style.display = "flex"; document.body.style.overflow = "hidden"; };
+      cancelBtn.onclick = () => { reportModal.style.display = "none"; document.body.style.overflow = "auto"; };
+
+      reportForm.onsubmit = (e) => {
+        e.preventDefault();
+        
+        // Crear el objeto reporte
+        const newReport = {
+          id: 'rep_' + Date.now(),
+          fecha: new Date().toLocaleString('es-ES'),
+          tipo: document.getElementById("reportType").value,
+          detalles: document.getElementById("reportDetails").value,
+          email: "Usuario de la Arena"
+        };
+
+        // Guardar en localStorage para que aparezca en admin.html
+        let reportes = JSON.parse(localStorage.getItem('rankArenaReports')) || [];
+        reportes.push(newReport);
+        localStorage.setItem('rankArenaReports', JSON.stringify(reportes));
+
+        alert("✅ Reporte guardado. El administrador lo revisará pronto.");
+        reportModal.style.display = "none";
+        document.body.style.overflow = "auto";
+        reportForm.reset();
+      };
+    });
+  </script>
 
   <script type="module">
     import { initNavbarAuth } from "./assets/js/nav-auth.js";
@@ -183,18 +314,11 @@
     const pillFilter = document.getElementById("catalogFilter");
     const pillCount  = document.getElementById("catalogCount");
 
-    function nice(cat){
-      if(cat==="retro") return "Retro";
-      if(cat==="modern") return "Modern";
-      if(cat==="original") return "Original";
-      return "Todos";
-    }
-
     filterBtns.forEach(b=>{
       b.addEventListener("click", ()=>{
         filterBtns.forEach(x=>x.classList.remove("is-active"));
         b.classList.add("is-active");
-        if (pillFilter) pillFilter.textContent = `🏷️ Filtro: ${nice(b.dataset.filter)}`;
+        if (pillFilter) pillFilter.textContent = `🏷️ Filtro: ${b.textContent}`;
       });
     });
 
