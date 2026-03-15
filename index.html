@@ -28,7 +28,6 @@
       border-radius: 12px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 25px rgba(245, 158, 11, 0.15);
       animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-      /* Ajustes para centrar todo el contenido */
       display: flex; 
       flex-direction: column; 
       align-items: center; 
@@ -46,7 +45,7 @@
       padding: 16px;
       line-height: 1.6;
       font-size: 15px;
-      width: 100%; /* Para que la caja ocupe bien el espacio al estar centrada */
+      width: 100%; 
     }
     .welcome-card li {
       margin-bottom: 10px;
@@ -64,9 +63,7 @@
 
 <div id="welcomeModal" class="welcome-overlay" style="display: none;">
   <div class="welcome-card">
-    
     <img src="assets/img/logo_dino.png" alt="Logo RankArena" style="max-width: 140px; margin-bottom: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">    
-    
     <h2 style="color: #f59e0b; font-size: 28px; margin-bottom: 12px; text-transform: uppercase; font-weight: 900;">¡Bienvenido a RankArena!</h2>
     <p style="color: #9ba896; font-size: 15px; margin-bottom: 10px; line-height: 1.5;">
       El arcade online donde tus reflejos y estrategia dictan quién manda. Aquí no hay segundas oportunidades, solo récords por batir.
@@ -96,7 +93,7 @@
     </nav>
 
     <div class="nav-right" style="display:flex; gap:10px; align-items:center;">
-      <span class="pill">👤 <b id="navUserName">Invitado</b></span>
+      <span class="pill"><b id="navUserName">Invitado</b></span>
       <a class="btn btn-ghost" id="navLoginBtn" href="login.html">Login</a>
       <a class="btn btn-ghost" id="navProfileBtn" href="profile.html" style="display:none;">Perfil</a>
       <button class="btn btn-ghost" id="navLogoutBtn" type="button" style="display:none;">Salir</button>
@@ -146,16 +143,17 @@
     <div id="top-monthly" class="grid"></div>
   </section>
 
-<section class="section">
+  <section class="section">
     <div class="card" style="border-color: #10b981; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(10, 25, 12, 0.9)); text-align: center; padding: 40px 20px;">
       <div style="font-size: 50px; margin-bottom: 15px;">🛠️</div>
       <h2 style="color: #10b981; margin-bottom: 10px; text-transform: uppercase; font-weight: 900;">¿Eres Desarrollador? Únete a la Arena</h2>
       <p style="color: #cddcb4; max-width: 650px; margin: 0 auto 20px auto; line-height: 1.6; font-size: 15px;">
         RankArena no es solo para jugar, ¡es para crear! Estamos preparando las herramientas para que puedas integrar tus propios minijuegos HTML5 usando nuestra API de puntuaciones. Pon a prueba a miles de jugadores con tus mecánicas.
       </p>
-      <a class="btn" style="background: #10b981; color: #fff; border: 2px solid #047857; transition: transform 0.1s; display: inline-block;" href="creator.html" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">🚀 Portal de Creadores</a>
+      <a class="btn" style="background: #10b981; color: #fff; border: 2px solid #047857; transition: transform 0.1s; display: inline-block;" href="creator.html">🚀 Portal de Creadores</a>
     </div>
   </section>
+
   <section class="section">
     <div class="card" style="border-color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);">
       <div class="card-body">
@@ -186,18 +184,14 @@
   document.addEventListener("DOMContentLoaded", () => {
     const welcomeModal = document.getElementById("welcomeModal");
     const closeBtn = document.getElementById("closeWelcomeBtn");
-
-    // Revisar si ya ha visto el mensaje anteriormente
     if (!localStorage.getItem("rankArenaWelcomeSeen")) {
-      welcomeModal.style.display = "flex"; // Mostrar si es nuevo
-      document.body.style.overflow = "hidden"; // Evitar que haga scroll mientras lee
+      welcomeModal.style.display = "flex";
+      document.body.style.overflow = "hidden";
     }
-
-    // Cerrar y guardar en memoria
     closeBtn.addEventListener("click", () => {
       welcomeModal.style.display = "none";
-      document.body.style.overflow = "auto"; // Restaurar scroll
-      localStorage.setItem("rankArenaWelcomeSeen", "true"); // Marcar como visto
+      document.body.style.overflow = "auto";
+      localStorage.setItem("rankArenaWelcomeSeen", "true");
     });
   });
 </script>
@@ -210,24 +204,12 @@
   import { initNavbarAuth } from "./assets/js/nav-auth.js";
   initNavbarAuth();
 </script>
+
 <footer style="margin-top: 50px; padding: 60px 20px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
   <p style="color: #fdf8e1; font-size: 12px; transition: all 0.3s ease; text-shadow: 1px 1px 4px rgba(0,0,0,1);">
     &copy; 2026 RankArena · 
     <a href="admin.html" id="staffLink" style="color: #f59e0b; text-decoration: none; opacity: 0; transition: opacity 0.3s ease;">Acceso Staff</a>
   </p>
 </footer>
-
-<style>
-  /* Al pasar el ratón por encima del texto del footer, el link secreto se ilumina en ámbar */
-  footer p:hover #staffLink {
-    opacity: 0.6; /* Lo hacemos un poco más visible que antes */
-    cursor: pointer;
-  }
-  
-  /* Un pequeño toque extra: si pasas el ratón por la frase, el copyright brilla un poco */
-  footer p:hover {
-    color: #fff !important;
-  }
-</style>
 </body>
 </html>

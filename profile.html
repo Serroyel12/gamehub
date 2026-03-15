@@ -8,9 +8,11 @@
   <link rel="stylesheet" href="assets/css/base.css">
   <style>
     .badge-grid{ display:grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap:10px; margin-top:10px; }
-    .badge-btn{ position:relative; border:1px solid rgba(148,163,184,.18); background: rgba(15,23,42,.40); border-radius:14px; padding:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; aspect-ratio: 1/1; }
-    .badge-btn.is-selected{ border-color: rgba(56,189,248,.75); background: rgba(56,189,248,.10); }
+    .badge-btn{ position:relative; border:1px solid rgba(148,163,184,.18); background: rgba(15,23,42,.40); border-radius:14px; padding:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; aspect-ratio: 1/1; transition: 0.3s; }
+    .badge-btn.is-selected{ border-color: #f59e0b; background: rgba(245, 158, 11, 0.15); box-shadow: 0 0 10px rgba(245,158,11,0.2); }
     .badge-btn img{ width:48px; height:48px; object-fit:contain; }
+    .badge-btn.is-locked { filter: grayscale(1); opacity: 0.2; cursor: not-allowed; }
+    
     .notif-box { background:rgba(245,158,11,0.1); border-left:3px solid #f59e0b; padding:10px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; border-radius:0 8px 8px 0; font-size:13px; }
     .notif-box button { background:#f59e0b; border:none; color:white; padding:4px 8px; border-radius:4px; cursor:pointer; margin-left:5px; font-weight:bold; }
 
@@ -31,6 +33,7 @@
       padding: 8px 12px; border-radius: 8px; font-size: 11px; width: 140px;
       z-index: 100; border: 1px solid #f59e0b; text-align: center; pointer-events: none;
     }
+    .section-label { color: #f59e0b; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-top: 15px; display: block; }
   </style>
 </head>
 <body>
@@ -38,14 +41,18 @@
 <header class="navbar">
   <div class="container navbar-inner">
     <a class="brand" href="index.html"><span class="mark"></span><span>RankArena</span></a>
-    <nav class="nav-links"><a href="index.html">Inicio</a><a href="games.html">Juegos</a><a href="community.html">Comunidad</a>
-    <a href="altar.html">Altar</a></nav>
+    <nav class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="games.html">Juegos</a>
+      <a href="community.html">Comunidad</a>
+      <a href="altar.html">Altar</a>
+    </nav>
   </div>
 </header>
 
 <main class="container">
   <section class="section">
-    <div class="card" style="max-width:720px;margin:0 auto;">
+    <div class="card" style="max-width:720px;margin:0 auto; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px);">
       <div class="card-body">
         <div class="card-title">⚙️ Mi perfil</div>
         
@@ -62,7 +69,11 @@
           
           <label style="color:var(--muted); font-size:14px;"><input id="premium" type="checkbox"> Premium (demo)</label>
 
+          <span class="section-label">Insignias Básicas (1-10)</span>
           <div id="badgeGrid" class="badge-grid"></div>
+
+          <span class="section-label">Reliquias Místicas (g11-g15)</span>
+          <div id="gachaBadgeGrid" class="badge-grid"></div>
 
           <div class="card" style="padding:14px; border:1px solid rgba(245, 158, 11, 0.2); background:rgba(2,6,23,.35); margin-top:10px;">
             <div class="card-title" style="font-size:14px; color:#f59e0b; display:flex; justify-content:space-between;">
@@ -89,7 +100,7 @@
             </div>
           </div>
 
-          <button class="btn btn-primary" id="save" type="button">Guardar Perfil</button>
+          <button class="btn btn-primary" id="save" type="button" style="width:100%; margin-top:10px; padding:15px; font-weight:bold;">Guardar Perfil</button>
         </div>
       </div>
     </div>
@@ -102,7 +113,7 @@
   import { doc, getDoc, setDoc, collection, query, where, getDocs, addDoc, onSnapshot, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
   const $ = (id) => document.getElementById(id);
-  let uid = null, myNickname = "", isPremium = false, selectedBadge = 1;
+  let uid = null, myNickname = "", isPremium = false, selectedBadge = "1";
 
   const LOGROS_CONFIG = [
     { id: 'puntos_aim', img: '50puntosaimtrainer.png', hint: '50 pts en Aim Trainer' },
@@ -112,15 +123,38 @@
     { id: 'subir_2', img: 'subir2juegos.png', hint: 'Sube 2 juegos' }
   ];
 
-  function renderBadges() {
+  function renderBadgeSelectors(userBadge, inventory) {
+    // 1. Básicas (1.png a 10.png)
     $("badgeGrid").innerHTML = "";
     for (let n = 1; n <= 10; n++) {
+      const bId = n.toString();
       const locked = n === 10 && !isPremium;
       const btn = document.createElement("button");
-      btn.className = "badge-btn " + (n === selectedBadge ? "is-selected " : "") + (locked ? "is-locked" : "");
+      btn.className = "badge-btn " + (userBadge === bId ? "is-selected " : "") + (locked ? "is-locked" : "");
       btn.innerHTML = `<img src="assets/img/iconos/${n}.png">${locked ? '🔒' : ''}`;
-      btn.onclick = () => { if(!locked) { selectedBadge = n; renderBadges(); } };
+      btn.onclick = () => { if(!locked) { selectedBadge = bId; renderBadgeSelectors(bId, inventory); } };
       $("badgeGrid").appendChild(btn);
+    }
+
+    // 2. Gacha (g11.png a g15.png)
+    const gachaContainer = $("gachaBadgeGrid");
+    gachaContainer.innerHTML = "";
+    const misticasIds = ["g11", "g12", "g13", "g14", "g15"];
+    const misMisticas = (inventory || []).filter(id => misticasIds.includes(id));
+
+    if (misMisticas.length === 0) {
+        gachaContainer.innerHTML = `<div class="muted" style="font-size:11px; grid-column: 1/-1; text-align:center; padding:10px;">Desbloquea del 11 al 15 en el Altar.</div>`;
+    } else {
+        misMisticas.forEach(gId => {
+            const btn = document.createElement("button");
+            btn.className = "badge-btn " + (userBadge === gId ? "is-selected " : "");
+            btn.innerHTML = `<img src="assets/img/iconos/${gId}.png">`;
+            btn.onclick = () => { 
+              selectedBadge = gId; 
+              renderBadgeSelectors(gId, inventory); 
+            };
+            gachaContainer.appendChild(btn);
+        });
     }
   }
 
@@ -143,17 +177,13 @@
     $("logrosCount").textContent = `${unlockedCount}/${LOGROS_CONFIG.length}`;
   }
 
-  // Respuesta a solicitudes con lógica bilateral corregida
   window.reply = async (requestId, accept) => {
     try {
       const reqRef = doc(db, "friendRequests", requestId);
       const reqSnap = await getDoc(reqRef);
-
       if (accept && reqSnap.exists()) {
         const reqData = reqSnap.data();
         const myUid = auth.currentUser.uid;
-
-        // 1. Añadir el amigo a MI lista
         const myRef = doc(db, "users", myUid);
         const myDoc = await getDoc(myRef);
         let myFriends = myDoc.data().friends || [];
@@ -161,8 +191,6 @@
           myFriends.push(reqData.fromId);
           await setDoc(myRef, { friends: myFriends }, { merge: true });
         }
-
-        // 2. Añadirme YO a la lista de mi AMIGO
         const friendRef = doc(db, "users", reqData.fromId);
         const friendDoc = await getDoc(friendRef);
         let friendFriends = friendDoc.data().friends || [];
@@ -187,8 +215,9 @@
         const d = fSnap.data();
         const div = document.createElement("div");
         div.style = "display:flex; align-items:center; gap:10px; background:rgba(15,23,42,0.5); padding:8px; border-radius:10px; border:1px solid rgba(255,255,255,0.05); margin-bottom:5px;";
+        const badgeSrc = `assets/img/iconos/${d.badge || 1}.png`;
         div.innerHTML = `
-          <img src="assets/img/iconos/${d.badge || 1}.png" style="width:30px; height:30px;">
+          <img src="${badgeSrc}" style="width:30px; height:30px; object-fit:contain;">
           <div style="flex:1; font-size:13px; font-weight:bold;">${d.nickname}</div>
           <div style="font-size:10px; color:#38bdf8;">🟢 Aliado</div>
         `;
@@ -223,8 +252,8 @@
       $("country").value = d.country || "";
       isPremium = d.premium || false;
       $("premium").checked = isPremium;
-      selectedBadge = d.badge || 1;
-      renderBadges();
+      selectedBadge = (d.badge || "1").toString();
+      renderBadgeSelectors(selectedBadge, d.inventory || []);
       renderAchievements(d);
       if (d.friends) renderFriends(d.friends);
       listenRequests(uid);
@@ -261,6 +290,5 @@
     $("friendNickname").value = "";
   };
 </script>
-
 </body>
 </html>

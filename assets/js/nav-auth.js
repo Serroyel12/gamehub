@@ -9,8 +9,6 @@ export function initNavbarAuth() {
   const profileBtn = document.getElementById("navProfileBtn");
   const logoutBtn = document.getElementById("navLogoutBtn");
 
-  // Si tienes un contenedor pill tipo: "👤 <b id=navUserName>"
-  // vamos a inyectar un img antes del nombre (si no existe lo creamos)
   const userPill = nameEl?.closest(".pill") || null;
 
   function ensureBadgeImg(){
@@ -20,13 +18,12 @@ export function initNavbarAuth() {
       img = document.createElement("img");
       img.setAttribute("data-role","badge");
       img.alt = "Insignia";
-      img.style.width = "18px";
-      img.style.height = "18px";
+      img.style.width = "22px"; // Un poco más grande para que se vea bien
+      img.style.height = "22px";
       img.style.objectFit = "contain";
-      img.style.marginRight = "6px";
+      img.style.marginRight = "8px";
       img.style.verticalAlign = "middle";
-      img.style.borderRadius = "6px";
-      // inserta al principio del pill
+      img.style.borderRadius = "4px";
       userPill.insertBefore(img, userPill.firstChild);
     }
     return img;
@@ -42,7 +39,7 @@ export function initNavbarAuth() {
     if (img) img.remove();
   };
 
-  const setUser = (nickname, badgeNumber) => {
+  const setUser = (nickname, badgeId) => {
     if (nameEl) nameEl.textContent = nickname || "Jugador";
     if (loginBtn) loginBtn.style.display = "none";
     if (profileBtn) profileBtn.style.display = "inline-flex";
@@ -50,18 +47,18 @@ export function initNavbarAuth() {
 
     if (userPill){
       const img = ensureBadgeImg();
-      const n = Number(badgeNumber || 1);
-      img.src = `assets/img/iconos/${n}.png`;
+      // Usamos el ID directamente (ej: "1" o "g11")
+      img.src = `assets/img/iconos/${badgeId || '1'}.png`;
     }
   };
 
-  // Pintado rápido (cache)
+  // Cache (Carga rápida)
   const cachedNick = localStorage.getItem("gh_nickname");
   const cachedBadge = localStorage.getItem("gh_badge");
   if (cachedNick && nameEl) nameEl.textContent = cachedNick;
   if (cachedBadge && userPill){
     const img = ensureBadgeImg();
-    img.src = `assets/img/iconos/${Number(cachedBadge) || 1}.png`;
+    img.src = `assets/img/iconos/${cachedBadge}.png`;
   }
 
   onAuthStateChanged(auth, async (user) => {
@@ -75,27 +72,21 @@ export function initNavbarAuth() {
       const data = snap.exists() ? snap.data() : {};
 
       const nickname = data.nickname || user.email?.split("@")[0] || "Jugador";
-
-      // badge: 1..10, pero si no premium => 1..9
-      const premium = !!data.premium;
-      let badge = Number(data.badge || 1);
-      if (!Number.isFinite(badge) || badge < 1 || badge > 10) badge = 1;
-      if (!premium && badge === 10) badge = 1;
+      // Guardamos el badge tal cual (sea "1" o "g11")
+      const badge = data.badge ? String(data.badge) : "1";
 
       localStorage.setItem("gh_nickname", nickname);
-      localStorage.setItem("gh_badge", String(badge));
+      localStorage.setItem("gh_badge", badge);
 
       setUser(nickname, badge);
     } catch (e) {
       console.error(e);
-      // fallback
       const nick = user.email?.split("@")[0] || "Jugador";
-      const badge = Number(localStorage.getItem("gh_badge") || 1) || 1;
+      const badge = localStorage.getItem("gh_badge") || "1";
       setUser(nick, badge);
     }
   });
 
-  // Logout
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
       const { signOut } = await import("https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js");
