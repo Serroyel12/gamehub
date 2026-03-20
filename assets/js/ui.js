@@ -1,14 +1,15 @@
 function getLocalBest(game) {
-  if (!game.scoreKey) return 0;
+  if (!game || !game.scoreKey) return 0;
   const v = Number(localStorage.getItem(game.scoreKey) || 0);
   return Number.isFinite(v) ? v : 0;
 }
 
-function niceCategory(cat){
+function niceCategory(cat) {
   if (cat === "retro") return "Retro";
   if (cat === "modern") return "Modern";
   if (cat === "original") return "Original";
-  return cat || "";
+  // Si añades nuevas categorías en el futuro, esto las manejará sin romperse
+  return cat ? cat.charAt(0).toUpperCase() + cat.slice(1) : "";
 }
 
 function renderGameGrid(containerId, games) {
@@ -17,28 +18,40 @@ function renderGameGrid(containerId, games) {
 
   container.innerHTML = "";
 
+  // Si no hay juegos en el array, no hacemos nada
+  if (!games || games.length === 0) return;
+
   games.forEach(game => {
+    // SEGURIDAD: Si un objeto del JSON está mal, saltamos al siguiente sin romper el catálogo
+    if (!game || !game.id) return;
+
     const best = getLocalBest(game);
     const badge = game.featured ? `<div class="badge">🔥 Featured</div>` : "";
+    
+    // Logo con control de errores
     const logo = game.logo ? `
       <div class="card-logo" title="${game.title}">
-        <img src="${game.logo}" alt="${game.title} logo">
+        <img src="${game.logo}" alt="${game.title} logo" onerror="this.style.display='none'">
       </div>
     ` : "";
 
-    // ⭐ placeholder (luego lo rellena Firebase gameStats)
     const ratingBadge = `
       <div class="rating-badge muted" style="margin-top:10px; font-size:13px;">
         ⭐ 0.0 (0)
       </div>
     `;
 
-    const card = `
-      <div class="card" data-game-id="${game.id}">
+    // CREACIÓN DE ELEMENTO SEGURO
+    const card = document.createElement('div');
+    card.className = "card";
+    card.setAttribute("data-game-id", game.id);
+    
+    // El contenido de la tarjeta con FALLBACK para la imagen (si no existe conquest.png, no desaparece la tarjeta)
+    card.innerHTML = `
         ${badge}
         ${logo}
         <div class="card-cover">
-          <img src="${game.cover}" alt="${game.title}">
+          <img src="${game.cover}" alt="${game.title}" onerror="this.src='assets/img/logo_dino.png'; this.style.opacity='0.5';">
         </div>
         <div class="card-body">
           <div class="card-title">${game.title}</div>
@@ -55,16 +68,15 @@ function renderGameGrid(containerId, games) {
             <a class="btn btn-primary" href="game.html?id=${game.id}">▶ Jugar</a>
           </div>
         </div>
-      </div>
     `;
 
-    container.innerHTML += card;
+    container.appendChild(card);
   });
 }
 
 function renderGamePage(containerId, game) {
   const container = document.getElementById(containerId);
-  if (!container) return;
+  if (!container || !game) return;
 
   const best = getLocalBest(game);
 
@@ -91,7 +103,7 @@ function renderLocalLeaderboard(containerId, games, limit = 5) {
   if (!container) return;
 
   const scored = games
-    .filter(g => g.scoreKey)
+    .filter(g => g && g.scoreKey)
     .map(g => ({ ...g, best: getLocalBest(g) }))
     .filter(g => g.best > 0)
     .sort((a, b) => b.best - a.best)

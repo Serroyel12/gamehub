@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Arena Conquest - RankArena</title>
+    <link rel="stylesheet" href="../../../assets/css/base.css">
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .game-ui-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.98);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(15px);
+            padding: 20px;
+        }
+        .setup-card {
+            background: #0f172a;
+            border: 2px solid #f59e0b;
+            padding: 30px;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 0 50px rgba(245, 158, 11, 0.15);
+        }
+        /* Tarjetas de Instrucciones */
+        .tutorial-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 25px 0;
+            text-align: left;
+        }
+        .step-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            padding: 15px;
+            border-radius: 12px;
+        }
+        .step-card h4 { color: #f59e0b; margin: 0 0 5px 0; font-size: 14px; text-transform: uppercase; }
+        .step-card p { margin: 0; font-size: 12px; color: #94a3b8; line-height: 1.4; }
+        
+        .player-indicator {
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+        .p1-theme { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #38bdf8; }
+        .p2-theme { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid #f59e0b; }
+        
+        #btn-reset-arena {
+            display: none;
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="setup-screen" class="game-ui-overlay">
+        <div class="setup-card">
+            <h2 style="color: #f59e0b; margin-bottom: 5px; font-weight: 900; letter-spacing: 2px;">ARENA CONQUEST</h2>
+            <p style="color: #38bdf8; font-size: 14px; font-weight: bold;">Manual de Estrategia</p>
+
+            <div class="tutorial-grid">
+                <div class="step-card">
+                    <h4>📍 Conquista</h4>
+                    <p>Haz clic en una casilla vacía para reclamar el territorio para tu bando.</p>
+                </div>
+                <div class="step-card">
+                    <h4>⚔️ Captura</h4>
+                    <p>Si rodeas casillas enemigas, ¡se convertirán automáticamente a tu color!</p>
+                </div>
+                <div class="step-card">
+                    <h4>⏳ Turnos</h4>
+                    <p>Debes pasar el turno para que tu rival pueda mover. Piensa bien cada paso.</p>
+                </div>
+                <div class="step-card">
+                    <h4>🏆 Victoria</h4>
+                    <p>Gana quien controle más hexágonos cuando se agoten los movimientos.</p>
+                </div>
+            </div>
+
+            <p id="setup-msg" class="muted" style="margin-bottom: 20px;">Sincronizando con la red de combate...</p>
+            <div id="loading-spinner" style="font-size: 30px; margin-bottom: 20px;">🌀</div>
+            
+            <button id="btn-start-local" class="btn primary" style="display:none; width:100%; font-size: 18px; padding: 15px;">
+                ¡ENTRAR A LA BATALLA!
+            </button>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <header class="game-header">
+            <div style="display:flex; align-items:center; justify-content:space-between; width: 100%;">
+                <div style="text-align: left;">
+                    <h1 style="margin:0; font-size: 28px; font-weight: 900;">ARENA CONQUEST</h1>
+                    <div id="player-role-tag" class="player-indicator" style="display:inline-block; margin-top:5px; padding: 4px 12px; font-size: 10px;">ESPECTADOR</div>
+                </div>
+                
+                <div id="game-info" style="margin:0; min-width: 320px;">
+                    <div style="text-align: center;">
+                        <div id="player-turn" style="font-weight: 900;">ESPERANDO...</div>
+                        <div style="font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Estado del Turno</div>
+                    </div>
+                    <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 20px;">
+                        <div style="font-size: 22px; color: #f59e0b; font-weight: 900;">💰 <span id="conquest-count">0</span></div>
+                        <div style="font-size: 10px; color: #94a3b8; text-transform: uppercase;">Tus Hexágonos</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main style="position: relative; margin: 20px 0;">
+            <canvas id="gameCanvas" width="800" height="500"></canvas>
+            
+            <div id="game-notif" style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); padding: 10px 25px; border-radius: 50px; border: 1px solid #f59e0b; display: none; pointer-events: none; font-size: 13px; color: #f59e0b; font-weight: bold; box-shadow: 0 0 20px rgba(0,0,0,0.5);">
+                ¡Territorio Capturado! ⚔️
+            </div>
+        </main>
+
+        <footer class="game-controls" style="background: rgba(15, 23, 42, 0.5); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+            <button id="btn-end-turn" class="btn" disabled>FINALIZAR MI TURNO</button>
+            <button id="btn-reset-arena" type="button">🔄 REINICIAR TABLERO</button>
+            <div style="flex:1"></div>
+        </footer>
+    </div>
+
+    <script type="module" src="game.js"></script>
+
+    <script>
+        window.addEventListener('load', () => {
+            const msg = document.getElementById('setup-msg');
+            const btn = document.getElementById('btn-start-local');
+            const spinner = document.getElementById('loading-spinner');
+            
+            setTimeout(() => {
+                spinner.style.display = "none";
+                msg.textContent = "Conexión estable. La arena te espera.";
+                btn.style.display = "block";
+            }, 1800);
+
+            btn.onclick = () => {
+                document.getElementById('setup-screen').style.opacity = "0";
+                setTimeout(() => document.getElementById('setup-screen').remove(), 500);
+            };
+        });
+    </script>
+</body>
+</html>

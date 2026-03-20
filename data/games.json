@@ -66,6 +66,18 @@
   "difficulty": "Media",
   "featured": true,
   "tags": ["estrategia","turnos","online","tablero"]
-}
-
+},
+{
+    "id": "arena_conquest",
+    "title": "Arena Conquest",
+    "category": "modern",
+    "tagline": "Domina la arena hexagonal.",
+    "cover": "assets/img/covers/conquest.png",
+    "path": "games/modern/conquest/index.html",
+    "players": "1-2",
+    "difficulty": "Alta",
+    "featured": true,
+    "scoreKey": "rankarena_conquest_wins",
+    "tags": ["estrategia", "turnos", "multijugador"]
+  }
 ]
