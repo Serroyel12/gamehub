@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Senda Evolutiva - RankArena</title>
+  <link rel="icon" type="image/png" href="assets/img/logo_dino.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="assets/css/base.css">
+  <style>
+    :root { --accent-evo: #10b981; }
+    .evo-container { max-width: 800px; margin: 40px auto; padding: 20px; }
+    
+    .evo-header { 
+        text-align: center; margin-bottom: 30px; 
+        background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(2,6,23,0.8));
+        padding: 30px; border-radius: 20px; border: 1px solid rgba(16,185,129,0.3);
+    }
+
+    .evo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .comic-frame {
+      background: #000;
+      border-radius: 15px;
+      border: 3px solid rgba(255,255,255,0.05);
+      position: relative;
+      aspect-ratio: 3/4;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .comic-frame img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+    
+    .comic-frame.locked img { filter: blur(15px) grayscale(1); opacity: 0.2; }
+    
+    .comic-frame.locked::after {
+      content: '🔒 Bloqueado';
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.6); color: #fff; font-weight: bold; font-size: 14px;
+    }
+
+    /* Estilo especial para el nivel Premium bloqueado */
+    .comic-frame.premium-lock::after {
+      content: '💎 PREMIUM';
+      background: rgba(88, 28, 135, 0.7);
+      color: #e9d5ff;
+    }
+
+    .comic-frame.current { border-color: var(--accent-evo); box-shadow: 0 0 20px rgba(16,185,129,0.3); transform: scale(1.02); }
+    .comic-frame.current::before {
+      content: 'TU ESTADO';
+      position: absolute; top: 10px; left: 10px; z-index: 10;
+      background: var(--accent-evo); color: #000; padding: 2px 10px;
+      font-size: 10px; font-weight: 900; border-radius: 5px;
+    }
+
+    .evo-stats {
+      background: rgba(15,23,42,0.6); padding: 20px; border-radius: 15px;
+      display: flex; justify-content: space-around; align-items: center; margin-top: 20px;
+    }
+
+    .btn-evo {
+      width: 100%; padding: 18px; border-radius: 12px; border: none;
+      background: var(--accent-evo); color: #000; font-weight: 900;
+      font-size: 16px; cursor: pointer; margin-top: 25px;
+      display: none; animation: pulseEvo 2s infinite;
+    }
+
+    .btn-evo.premium-needed {
+        background: #9333ea;
+        color: white;
+    }
+
+    @keyframes pulseEvo {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .viewer {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999;
+      display: none; align-items: center; justify-content: center; flex-direction: column;
+    }
+    .viewer img { max-width: 90%; max-height: 85vh; border: 2px solid var(--accent-evo); border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="container navbar-inner">
+    <a class="brand" href="index.html"><span class="mark"></span><span>RankArena</span></a>
+    <nav class="nav-links">
+      <a href="profile.html">← Volver al Perfil</a>
+    </nav>
+  </div>
+</header>
+
+<main class="evo-container">
+  <div class="evo-header">
+    <h1 id="evo-title" style="color: var(--accent-evo); margin-bottom: 5px;">HUEVO ANCESTRAL</h1>
+    <p class="muted">El tiempo es tu aliado. Evoluciona para dominar la arena.</p>
+  </div>
+
+  <div class="evo-stats">
+    <div>
+        <span style="display:block; font-size:10px; color:var(--muted);">TIEMPO EN LA ARENA</span>
+        <span id="days-count" style="font-size:20px; font-weight:bold; color:#fff;">0 Días</span>
+    </div>
+    <div style="text-align:right;">
+        <span style="display:block; font-size:10px; color:var(--muted);">NIVEL ACTUAL</span>
+        <span id="lvl-count" style="font-size:20px; font-weight:bold; color:var(--accent-evo);">1</span>
+    </div>
+  </div>
+
+  <div class="evo-grid" id="evoGrid"></div>
+
+  <button id="btnEvolve" class="btn-evo">✨ RECLAMAR SIGUIENTE EVOLUCIÓN</button>
+</main>
+
+<div id="viewer" class="viewer" onclick="this.style.display='none'">
+    <h2 id="v-title" style="color:var(--accent-evo); margin-bottom:15px;"></h2>
+    <img id="v-img" src="">
+    <p class="muted" style="margin-top:15px;">Click para cerrar</p>
+</div>
+
+<script type="module">
+  import { auth, db } from "./assets/js/firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+  import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+  const EVO_NAMES = ["Huevo Ancestral", "Primeros pasos", "El ThilaRex", "Primera Cazeria", "Camino a la madurez", "Enfrentamiento final", "El Dinosaurio legendario"];
+  const DAYS_STEP = 30; 
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "login.html"; return; }
+    
+    const snap = await getDoc(doc(db, "users", user.uid));
+    const data = snap.data() || {};
+    
+    const createdAt = data.createdAt?.toDate() || new Date();
+    const currentLvl = data.level || 1;
+    const isPremium = data.premium || false;
+    const diffDays = Math.floor((new Date() - createdAt) / (1000 * 60 * 60 * 24));
+    
+    let possibleLvl = Math.floor(diffDays / DAYS_STEP) + 1;
+    if (possibleLvl > 7) possibleLvl = 7;
+
+    document.getElementById("evo-title").textContent = EVO_NAMES[currentLvl - 1].toUpperCase();
+    document.getElementById("days-count").textContent = `${diffDays} Días`;
+    document.getElementById("lvl-count").textContent = currentLvl;
+
+    const grid = document.getElementById("evoGrid");
+    grid.innerHTML = ""; 
+
+    for (let i = 1; i <= 7; i++) {
+        const isLocked = i > currentLvl;
+        const frame = document.createElement("div");
+        
+        // Clase especial para el nivel 7 si no es premium
+        let extraClass = (i === 7 && !isPremium) ? "premium-lock" : "";
+        frame.className = `comic-frame ${isLocked ? 'locked' : ''} ${i === currentLvl ? 'current' : ''} ${extraClass}`;
+        
+        frame.innerHTML = `<img src="assets/img/niveles/${i}.png">`;
+        
+        if (!isLocked) {
+            frame.onclick = () => {
+                document.getElementById("v-title").textContent = EVO_NAMES[i-1];
+                document.getElementById("v-img").src = `assets/img/niveles/${i}.png`;
+                document.getElementById("viewer").style.display = "flex";
+            };
+        } else if (i === 7 && !isPremium) {
+            frame.onclick = () => alert("La forma final del Códice solo es accesible para miembros Premium.");
+        }
+        grid.appendChild(frame);
+    }
+
+    const btn = document.getElementById("btnEvolve");
+    if (possibleLvl > currentLvl) {
+        btn.style.display = "block";
+        
+        // Bloqueo de evolución al nivel 7 si no es Premium
+        if (currentLvl === 6 && !isPremium) {
+            btn.textContent = "💎 REQUIERE PREMIUM PARA NIVEL FINAL";
+            btn.classList.add("premium-needed");
+            btn.onclick = () => alert("Has alcanzado el límite de evolución gratuita. ¡Hazte Premium en tu perfil para convertirte en el Dinosaurio Legendario!");
+        } else {
+            btn.textContent = "✨ RECLAMAR SIGUIENTE EVOLUCIÓN";
+            btn.classList.remove("premium-needed");
+            btn.onclick = async () => {
+                await setDoc(doc(db, "users", user.uid), { level: currentLvl + 1 }, { merge: true });
+                alert("¡Tu ADN ha mutado! Has alcanzado una nueva forma.");
+                location.reload();
+            };
+        }
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,6 +1,7 @@
+// assets/js/pages/home.js
 import { getGlobalLeaderboard } from "../scores.js";
+// ELIMINADO EL IMPORT DE UI.JS AQUÍ
 
-// 1. Cargamos los juegos con tus datos exactos
 async function loadGames() {
   return [
     {
@@ -18,7 +19,7 @@ async function loadGames() {
       category: "Retro"
     },
     {
-      id: "meteor_dodge", // Corregido con guion bajo _
+      id: "meteor_dodge",
       title: "Volcano Dodge",
       desc: "¡La lava sube! Esquiva las rocas y sobrevive a la erupción.",
       img: "assets/img/covers/meteor_dodge.jpg",
@@ -29,7 +30,7 @@ async function loadGames() {
 
 async function loadTopMonthly() {
   return {
-    top: ["chess", "snake", "meteor_dodge"] // IDs exactos de tu JSON
+    top: ["chess", "snake", "meteor_dodge"]
   };
 }
 
@@ -74,18 +75,27 @@ document.addEventListener("DOMContentLoaded", async () => {
         tbody.innerHTML = `<tr><td colspan="3" class="muted" style="text-align:center;">Aún no hay guerreros registrados.</td></tr>`;
         return;
       }
-      tbody.innerHTML = topUsers.map((u, idx) => `
-        <tr>
-          <td style="color:var(--primary); font-weight:bold;">#${idx + 1}</td>
-          <td>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <img src="assets/img/iconos/${u.badge || 1}.png" style="width:28px; height:28px; object-fit:contain; border-radius:4px;">
-              <span style="font-weight:700;">${u.nickname}</span>
-            </div>
-          </td>
-          <td style="font-weight:900; color:var(--primary); font-size:16px;">${u.score} pts</td>
-        </tr>
-      `).join("");
+      tbody.innerHTML = topUsers.map((u, idx) => {
+          // USAMOS LA FUNCIÓN GLOBAL getRomanLevel
+          const level = u.level || 1;
+          const roman = typeof getRomanLevel !== 'undefined' ? getRomanLevel(level) : "I";
+          const isMax = level === 7;
+
+          return `
+            <tr>
+              <td style="color:var(--primary); font-weight:bold;">#${idx + 1}</td>
+              <td>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <img src="assets/img/iconos/${u.badge || 1}.png" style="width:28px; height:28px; object-fit:contain; border-radius:4px;">
+                  <span style="font-weight:700; color: ${isMax ? '#10b981' : 'white'};">
+                    ${u.nickname} <span class="roman-badge ${isMax ? 'roman-badge-max' : ''}">${roman}</span>
+                  </span>
+                </div>
+              </td>
+              <td style="font-weight:900; color:var(--primary); font-size:16px;">${u.score} pts</td>
+            </tr>
+          `;
+      }).join("");
     } catch (error) {
       console.error(error);
       tbody.innerHTML = `<tr><td colspan="3" style="color:var(--danger); text-align:center;">Error cargando ranking global.</td></tr>`;

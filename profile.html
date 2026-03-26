@@ -46,8 +46,7 @@
       <a href="games.html">Juegos</a>
       <a href="community.html">Comunidad</a>
       <a href="altar.html">Altar</a>
-            <a href="historias.html">Codice Prehisotrico</a>
-
+      <a href="historias.html">Codice Prehisotrico</a>
     </nav>
   </div>
 </header>
@@ -70,6 +69,14 @@
           </select>
           
           <label style="color:var(--muted); font-size:14px;"><input id="premium" type="checkbox"> Premium (demo)</label>
+
+          <div class="card" style="margin-top: 15px; border: 1px solid #10b981; background: rgba(16,185,129,0.05); padding: 15px; display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <div style="color:#10b981; font-weight:bold; font-size:14px;">🌟 Senda Evolutiva</div>
+              <div style="font-size:11px; color:var(--muted);">Nivel actual: <span id="currentLevelText">1</span></div>
+            </div>
+            <a href="evolucion.html" class="btn" style="background:#10b981; color:#000; font-size:12px; padding: 8px 15px; font-weight:bold; text-decoration:none; border-radius:8px;">VER EVOLUCIÓN</a>
+          </div>
 
           <span class="section-label">Insignias Básicas (1-10)</span>
           <div id="badgeGrid" class="badge-grid"></div>
@@ -255,6 +262,10 @@
       isPremium = d.premium || false;
       $("premium").checked = isPremium;
       selectedBadge = (d.badge || "1").toString();
+      
+      // MOSTRAR NIVEL ACTUAL
+      $("currentLevelText").textContent = d.level || 1;
+
       renderBadgeSelectors(selectedBadge, d.inventory || []);
       renderAchievements(d);
       if (d.friends) renderFriends(d.friends);

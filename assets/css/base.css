@@ -446,3 +446,11 @@ iframe{
   iframe{ height: 1000px; } /* Aún más alto en móviles porque se apila */
   .game-header { flex-direction: column; }
 }
+.roman-badge {
+    font-family: 'Times New Roman', serif;
+    color: #f59e0b;
+    font-size: 0.8em;
+    font-weight: bold;
+    margin-left: 5px;
+}
+.roman-badge-max { color: #10b981; }

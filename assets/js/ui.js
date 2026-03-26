@@ -1,3 +1,9 @@
+// Función para convertir nivel numérico a Romano (I-VII)
+function getRomanLevel(lvl) {
+    const romans = ["", "I", "II", "III", "IV", "V", "VI", "VII"];
+    return romans[lvl] || "I";
+}
+
 function getLocalBest(game) {
   if (!game || !game.scoreKey) return 0;
   const v = Number(localStorage.getItem(game.scoreKey) || 0);
@@ -46,7 +52,7 @@ function renderGameGrid(containerId, games) {
     card.className = "card";
     card.setAttribute("data-game-id", game.id);
     
-    // El contenido de la tarjeta con FALLBACK para la imagen (si no existe conquest.png, no desaparece la tarjeta)
+    // El contenido de la tarjeta con FALLBACK para la imagen
     card.innerHTML = `
         ${badge}
         ${logo}
