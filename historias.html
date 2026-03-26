@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Códice Prehistórico - RankArena</title>
+  <link rel="icon" type="image/png" href="assets/img/logo_dino.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/historias.css">
+  
+  <style>
+    /* Ajustes para mantener la coherencia con el Hero de la Home */
+    .section-header {
+      padding: 60px 20px;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(10, 25, 12, 0.9));
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: 12px;
+      margin-top: 20px;
+      text-align: center;
+    }
+    
+    .title-amber {
+      color: #f59e0b;
+      text-transform: uppercase;
+      font-weight: 900;
+      text-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="container navbar-inner">
+    <a class="brand" href="index.html">
+      <span class="mark"></span>
+      <span>RankArena</span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="games.html">Juegos</a>
+      <a href="community.html">Comunidad</a>
+      <a href="altar.html">Altar</a>
+      <a href="historias.html" class="active">Códice Prehistórico</a>
+    </nav>
+
+    <div class="nav-right" style="display:flex; gap:10px; align-items:center;">
+      <span class="pill"><b id="navUserName">Invitado</b></span>
+      <a class="btn btn-ghost" id="navLoginBtn" href="login.html">Login</a>
+      <a class="btn btn-ghost" id="navProfileBtn" href="profile.html" style="display:none;">Perfil</a>
+      <button class="btn btn-ghost" id="navLogoutBtn" type="button" style="display:none;">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <header class="section-header">
+    <h1 class="title-amber" style="font-size: 2.5rem; letter-spacing: 2px; margin-bottom: 10px;">📜 Códice Prehistórico</h1>
+    <p class="muted" style="max-width: 600px; margin: 0 auto; line-height: 1.6;">
+      Explora los anales del tiempo. Haz clic en cada criatura para desvelar los pergaminos de su historia y secretos de combate.
+    </p>
+  </header>
+
+  <section class="section">
+    <div class="dino-grid" id="dino-container"></div>
+  </section>
+
+  <div class="spacer" style="height: 40px;"></div>
+</main>
+
+<div id="story-modal" class="modal-overlay" onclick="closeStory(event)">
+  <div class="modal-content" style="border-color: #f59e0b; box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);">
+    <span class="close-btn" onclick="document.getElementById('story-modal').style.display='none'">&times;</span>
+    <h3 id="modal-title" class="title-amber" style="text-align: center; margin-bottom: 15px; letter-spacing: 1px;"></h3>
+    <div class="story-image-wrapper">
+      <img id="story-full-img" src="" alt="Cargando historia...">
+    </div>
+  </div>
+</div>
+
+
+
+<script src="assets/js/app.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/historias.js"></script>
+<script type="module">
+  import { initNavbarAuth } from "./assets/js/nav-auth.js";
+  initNavbarAuth();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+.dino-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 25px;
+    padding: 20px 0;
+}
+
+.dino-card {
+    background: rgba(15, 23, 42, 0.7);
+    border: 2px solid rgba(245, 158, 11, 0.2);
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.dino-card:hover {
+    transform: scale(1.05);
+    border-color: #f59e0b;
+    background: rgba(15, 23, 42, 0.9);
+    box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+}
+
+.dino-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
+.dino-name {
+    color: #f59e0b;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+/* Modal Estilizado */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.95);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(8px);
+}
+
+.modal-content {
+    background: #0f172a;
+    padding: 20px;
+    border-radius: 20px;
+    border: 2px solid #f59e0b;
+    position: relative;
+    max-width: 800px;
+    width: 90%;
+}
+
+.story-image-wrapper {
+    overflow-y: auto;
+    max-height: 80vh;
+    border-radius: 10px;
+}
+
+.story-image-wrapper img {
+    width: 100%;
+    display: block;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    color: #f59e0b;
+    font-size: 35px;
+    cursor: pointer;
+    z-index: 10;
+}
