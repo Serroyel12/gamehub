@@ -47,13 +47,23 @@
       .side{ padding-right:0; }
     }
     
-    /* Scroll para la tarjeta de instrucciones por si la pantalla es pequeña */
     .instructions-card {
       max-height: 85vh;
       overflow-y: auto;
     }
     .instructions-card::-webkit-scrollbar { width: 8px; }
     .instructions-card::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 8px; }
+
+    /* Estilo para el contenedor de video */
+    #videoContainer {
+      display: none;
+      margin-top: 15px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #f59e0b;
+      background: #000;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+    }
   </style>
 </head>
 <body>
@@ -76,8 +86,20 @@
       <li><b style="color:#f59e0b; font-size:16px;">♞ Caballo:</b> Avanza en forma de "L" (2 casillas en una dirección y 1 hacia un lado). ¡Es la única que salta sobre otras piezas!</li>
       <li><b style="color:#f59e0b; font-size:16px;">♝ Alfil:</b> Se mueve en diagonal sin límite de casillas. Siempre se mantiene en el mismo color.</li>
       <li><b style="color:#f59e0b; font-size:16px;">♛ Reina:</b> La más letal. Se mueve en cualquier dirección recta o diagonal sin límite.</li>
-      <li><b style="color:#f59e0b; font-size:16px;">♚ Rey:</b> Se mueve 1 casilla en cualquier dirección. ¡Si te lo atrapan y no puede escapar, es JAQUE MATE y pierdes!</li>
+      <li><b style="color:#f59e0b; font-size:16px;">♚ Rey:</b> Se mueve 1 casilla en cualquier dirección. ¡Si te lo atrapan es JAQUE MATE!</li>
     </ul>
+
+    <div style="margin-top: 20px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+      <p class="muted" style="font-size: 13px; margin-bottom: 10px;">¿Aún tienes dudas? Mira el tutorial rápido:</p>
+      <button class="btn btn-ghost" id="btnShowVideo" style="font-size: 14px; padding: 8px 20px;">🎥 Ver videotutorial</button>
+      
+      <div id="videoContainer">
+        <video id="explainVideo" width="100%" controls>
+          <source src="../../../assets/vid/AjedrezExplain.mp4" type="video/mp4">
+          Tu navegador no soporta video.
+        </video>
+      </div>
+    </div>
 
     <div style="text-align: center; margin-top: 24px;">
       <button class="btn btn-primary" id="btnStartGame" style="font-size: 18px; padding: 12px 30px;">¡ENTENDIDO, A JUGAR!</button>
@@ -87,14 +109,13 @@
 
 <main class="chess-page">
   <div class="chess-shell">
-
     <div>
       <div id="boardWrapper" class="draggable-panel">
         <div class="drag-handle">🖐️ Arrastrar Tablero</div>
         
         <div class="player-tag" id="topPlayer" style="display:none;">
           <div class="p-left">
-            <img id="topBadge" src="" style="display:none;">
+            <img id="topBadge" src="" style="display:none; width:24px; height:24px; vertical-align:middle;">
             <span id="topName">Esperando rival...</span>
           </div>
           <div class="p-right">ELO: <b id="topElo">--</b></div>
@@ -104,7 +125,7 @@
 
         <div class="player-tag bottom" id="bottomPlayer" style="display:none;">
           <div class="p-left">
-            <img id="bottomBadge" src="" style="display:none;">
+            <img id="bottomBadge" src="" style="display:none; width:24px; height:24px; vertical-align:middle;">
             <span id="bottomName">Tú</span>
           </div>
           <div class="p-right">ELO: <b id="bottomElo">--</b></div>
@@ -143,17 +164,16 @@
       <div class="card">
         <div class="card-body">
           <div class="card-title" style="font-size:14px;">📌 Estado (FEN)</div>
-          <textarea id="fenBox" class="fenBox" readonly></textarea>
+          <textarea id="fenBox" class="fenBox" readonly style="width:100%; height:40px; background:rgba(0,0,0,0.2); color:#94a3b8; border:none; font-size:11px; padding:5px; border-radius:4px;"></textarea>
         </div>
       </div>
 
       <div class="card">
         <div class="card-body">
           <div class="card-title" style="font-size:14px;">📝 Movimientos</div>
-          <div id="moves" class="moves"></div>
+          <div id="moves" class="moves" style="font-size:13px; line-height:1.6;"></div>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -182,12 +202,17 @@
 
 <script>
   $(function() {
-    // 1. Quitar instrucciones al pulsar el botón
     $("#btnStartGame").on("click", function() {
+      const video = document.getElementById('explainVideo');
+      if(video) video.pause();
       $("#instructionsOverlay").fadeOut(300);
     });
 
-    // 2. Activar modo arrastrar si es PC
+    $("#btnShowVideo").on("click", function() {
+      $("#videoContainer").slideToggle(400);
+      $(this).text($(this).text().includes("Ver") ? "❌ Cerrar video" : "🎥 Ver videotutorial");
+    });
+
     if ($(window).width() > 980) {
       $("#boardWrapper").draggable({ handle: ".drag-handle", containment: "window" });
       $("#chatCard").draggable({ handle: ".drag-handle-chat", containment: "window" });

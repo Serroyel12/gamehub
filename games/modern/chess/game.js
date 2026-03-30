@@ -457,3 +457,4 @@ onAuthStateChanged(auth, async (user) => {
     updateUI();
   }
 });
+

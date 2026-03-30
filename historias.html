@@ -25,6 +25,49 @@
       font-weight: 900;
       text-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
     }
+
+    /* CONTROLES DE AUDIO */
+    .audio-player {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(10, 25, 12, 0.95);
+      border: 1px solid #f59e0b;
+      padding: 12px 18px;
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      z-index: 1000;
+    }
+
+    .audio-btn {
+      background: none;
+      border: none;
+      color: #f59e0b;
+      cursor: pointer;
+      font-size: 18px;
+      transition: transform 0.2s;
+      display: flex;
+      align-items: center;
+    }
+
+    .audio-btn:hover { transform: scale(1.1); }
+
+    .volume-slider {
+      width: 80px;
+      accent-color: #f59e0b;
+      cursor: pointer;
+    }
+
+    .audio-label {
+      font-size: 10px;
+      color: #9ba896;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-right: 5px;
+    }
   </style>
 </head>
 <body>
@@ -57,7 +100,7 @@
   <header class="section-header">
     <h1 class="title-amber" style="font-size: 2.5rem; letter-spacing: 2px; margin-bottom: 10px;">📜 Códice Prehistórico</h1>
     <p class="muted" style="max-width: 600px; margin: 0 auto; line-height: 1.6;">
-      Explora los seres prehistoricos mas famososo de todos los tiempos. Haz clic en cada criatura para desvelar los pergaminos de su historia y secretos de combate.
+      Explora los seres prehistóricos más famosos de todos los tiempos. Haz clic en cada criatura para desvelar los pergaminos de su historia y secretos de combate.
     </p>
   </header>
 
@@ -78,7 +121,20 @@
   </div>
 </div>
 
+<div class="audio-player">
+  <span class="audio-label">Ambiente</span>
+  <button class="audio-btn" id="audio-play-pause" title="Pausar/Reproducir">
+    <span id="audio-icon">▶️</span>
+  </button>
+  <button class="audio-btn" id="audio-restart" title="Reiniciar">
+    🔄
+  </button>
+  <input type="range" class="volume-slider" id="audio-volume" min="0" max="1" step="0.1" value="0.5">
+</div>
 
+<audio id="bg-theme" loop>
+  <source src="assets/audio/theme.mp3" type="audio/mpeg">
+</audio>
 
 <script src="assets/js/app.js"></script>
 <script src="assets/js/ui.js"></script>
@@ -86,6 +142,42 @@
 <script type="module">
   import { initNavbarAuth } from "./assets/js/nav-auth.js";
   initNavbarAuth();
+</script>
+
+<script>
+  const audio = document.getElementById('bg-theme');
+  const playPauseBtn = document.getElementById('audio-play-pause');
+  const restartBtn = document.getElementById('audio-restart');
+  const volumeSlider = document.getElementById('audio-volume');
+  const icon = document.getElementById('audio-icon');
+
+  // Reproducir automáticamente (con manejo de restricciones del navegador)
+  window.addEventListener('click', () => {
+    if (audio.paused && !audio.ended && audio.currentTime === 0) {
+      audio.play().catch(e => console.log("Auto-play bloqueado hasta interacción"));
+      icon.textContent = "⏸️";
+    }
+  }, { once: true });
+
+  playPauseBtn.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play();
+      icon.textContent = "⏸️";
+    } else {
+      audio.pause();
+      icon.textContent = "▶️";
+    }
+  });
+
+  restartBtn.addEventListener('click', () => {
+    audio.currentTime = 0;
+    audio.play();
+    icon.textContent = "⏸️";
+  });
+
+  volumeSlider.addEventListener('input', (e) => {
+    audio.volume = e.target.value;
+  });
 </script>
 
 </body>

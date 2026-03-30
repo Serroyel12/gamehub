@@ -85,11 +85,16 @@
           <div id="gachaBadgeGrid" class="badge-grid"></div>
 
           <div class="card" style="padding:14px; border:1px solid rgba(245, 158, 11, 0.2); background:rgba(2,6,23,.35); margin-top:10px;">
-            <div class="card-title" style="font-size:14px; color:#f59e0b; display:flex; justify-content:space-between;">
+            <div class="card-title" style="font-size:14px; color:#f59e0b; display:flex; justify-content:space-between; margin-bottom:10px;">
               <span>🦖 Trofeos de la Arena</span>
               <span id="logrosCount" style="font-size:12px; opacity:0.7;">0/5</span>
             </div>
-            <div id="achievementsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 15px; margin-top: 15px; justify-items: center;"></div>
+            
+            <span class="section-label" style="margin-top:5px; color:#94a3b8; font-size:10px;">🕹️ Desafíos de Juego</span>
+            <div id="achievementsGridJuego" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 15px; margin-top: 10px; justify-items: center;"></div>
+
+            <span class="section-label" style="margin-top:15px; color:#94a3b8; font-size:10px;">📜 Hitos de Guerrero</span>
+            <div id="achievementsGridGeneral" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 15px; margin-top: 10px; justify-items: center;"></div>
           </div>
 
           <div class="card" style="padding:14px; border:1px solid rgba(148,163,184,.12); background:rgba(2,6,23,.35); margin-top:10px;">
@@ -125,15 +130,14 @@
   let uid = null, myNickname = "", isPremium = false, selectedBadge = "1";
 
   const LOGROS_CONFIG = [
-    { id: 'puntos_aim', img: '50puntosaimtrainer.png', hint: '50 pts en Aim Trainer' },
-    { id: 'jugar_15', img: 'jugar15minutos.png', hint: 'Juega 15 min' },
-    { id: 'puntos_volcan', img: 'llegar100puntosvolcan.png', hint: '100 pts en Volcano' },
-    { id: 'elo_chess', img: 'llegar1250eloajedrez.png', hint: '1250 ELO Ajedrez' },
-    { id: 'subir_2', img: 'subir2juegos.png', hint: 'Sube 2 juegos' }
+    { id: 'puntos_aim', img: '50puntosaimtrainer.png', hint: '50 pts en Aim Trainer', category: 'juego' },
+    { id: 'puntos_volcan', img: 'llegar100puntosvolcan.png', hint: '100 pts en Volcano', category: 'juego' },
+    { id: 'elo_chess', img: 'llegar1250eloajedrez.png', hint: '1250 ELO Ajedrez', category: 'juego' },
+    { id: 'jugar_15', img: 'jugar15minutos.png', hint: 'Juega 15 min', category: 'general' },
+    { id: 'subir_2', img: 'subir2juegos.png', hint: 'Sube 2 juegos', category: 'general' }
   ];
 
   function renderBadgeSelectors(userBadge, inventory) {
-    // 1. Básicas (1.png a 10.png)
     $("badgeGrid").innerHTML = "";
     for (let n = 1; n <= 10; n++) {
       const bId = n.toString();
@@ -145,7 +149,6 @@
       $("badgeGrid").appendChild(btn);
     }
 
-    // 2. Gacha (g11.png a g15.png)
     const gachaContainer = $("gachaBadgeGrid");
     gachaContainer.innerHTML = "";
     const misticasIds = ["g11", "g12", "g13", "g14", "g15"];
@@ -168,8 +171,11 @@
   }
 
   function renderAchievements(userData) {
-    const grid = $("achievementsGrid");
-    grid.innerHTML = "";
+    const gridJuego = $("achievementsGridJuego");
+    const gridGeneral = $("achievementsGridGeneral");
+    gridJuego.innerHTML = "";
+    gridGeneral.innerHTML = "";
+    
     let unlockedCount = 0;
     const ganados = userData.logros || [];
     const creadosLocales = (JSON.parse(localStorage.getItem('rankArenaCreatorGames')) || []).length;
@@ -177,11 +183,17 @@
     LOGROS_CONFIG.forEach(logro => {
       let unlocked = ganados.includes(logro.id) || (logro.id === 'subir_2' && creadosLocales >= 2);
       if (unlocked) unlockedCount++;
+      
       const item = document.createElement("div");
       item.className = "achievement-item";
       item.setAttribute("data-hint", logro.hint);
       item.innerHTML = `<img src="assets/img/insignias/${logro.img}" class="achievement-img ${unlocked ? 'unlocked' : ''}">`;
-      grid.appendChild(item);
+      
+      if(logro.category === 'juego') {
+        gridJuego.appendChild(item);
+      } else {
+        gridGeneral.appendChild(item);
+      }
     });
     $("logrosCount").textContent = `${unlockedCount}/${LOGROS_CONFIG.length}`;
   }
@@ -263,7 +275,6 @@
       $("premium").checked = isPremium;
       selectedBadge = (d.badge || "1").toString();
       
-      // MOSTRAR NIVEL ACTUAL
       $("currentLevelText").textContent = d.level || 1;
 
       renderBadgeSelectors(selectedBadge, d.inventory || []);
