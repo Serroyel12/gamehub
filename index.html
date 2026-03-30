@@ -47,16 +47,30 @@
       font-size: 15px;
       width: 100%; 
     }
-    .welcome-card li {
-      margin-bottom: 10px;
-    }
-    .welcome-card li:last-child {
-      margin-bottom: 0;
-    }
+    .welcome-card li { margin-bottom: 10px; }
+    .welcome-card li:last-child { margin-bottom: 0; }
+    
     @keyframes popIn {
       0% { transform: scale(0.8); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
     }
+
+    /* Estilos extra para las nuevas secciones */
+    .benefit-list {
+      list-style: none;
+      padding: 0;
+      margin: 15px 0;
+      text-align: left;
+    }
+    .benefit-list li {
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #9ba896;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .benefit-list b { color: #fff; }
   </style>
 </head>
 <body>
@@ -86,11 +100,11 @@
     </a>
 
     <nav class="nav-links">
-      <a href="index.html">Inicio</a>
+      <a href="index.html" class="active">Inicio</a>
       <a href="games.html">Juegos</a>
       <a href="community.html">Comunidad</a>
       <a href="altar.html">Altar</a>
-      <a href="historias.html">Codice Prehisotrico</a>
+      <a href="historias.html">Códice Prehistórico</a>
     </nav>
 
     <div class="nav-right" style="display:flex; gap:10px; align-items:center;">
@@ -149,9 +163,40 @@
       <div style="font-size: 50px; margin-bottom: 15px;">🛠️</div>
       <h2 style="color: #10b981; margin-bottom: 10px; text-transform: uppercase; font-weight: 900;">¿Eres Desarrollador? Únete a la Arena</h2>
       <p style="color: #cddcb4; max-width: 650px; margin: 0 auto 20px auto; line-height: 1.6; font-size: 15px;">
-        RankArena no es solo para jugar, ¡es para crear! Estamos preparando las herramientas para que puedas integrar tus propios minijuegos HTML5 usando nuestra API de puntuaciones. Pon a prueba a miles de jugadores con tus mecánicas.
+        RankArena no es solo para jugar, ¡es para crear! Pon a prueba a miles de jugadores con tus propias mecánicas HTML5.
       </p>
-      <a class="btn" style="background: #10b981; color: #fff; border: 2px solid #047857; transition: transform 0.1s; display: inline-block;" href="creator.html">🚀 Portal de Creadores</a>
+      <a class="btn" style="background: #10b981; color: #fff; border: 2px solid #047857;" href="creator.html">🚀 Portal de Creadores</a>
+    </div>
+  </section>
+
+ <section class="section">
+    <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;">
+      
+      <div class="card" style="border: 1px solid rgba(245, 158, 11, 0.4); background: rgba(15, 23, 42, 0.95); padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+        <div style="font-size: 40px; margin-bottom: 15px;">⏳</div>
+        <h2 style="color: #f59e0b; margin-bottom: 10px; text-transform: uppercase; font-weight: 900; letter-spacing: 1px;">Temporadas Mensuales</h2>
+        <p style="color: #cddcb4; font-size: 15px; line-height: 1.6; margin-bottom: 15px;">Cada 30 días, la Arena se renueva por completo:</p>
+        <ul class="benefit-list">
+          <li><span style="color: #f59e0b;">⚡</span> <span><b>Rotación del Altar:</b> Los iconos son exclusivos de cada mes. Si no los consigues ahora, desaparecerán.</span></li>
+          <li><span style="color: #f59e0b;">⚡</span> <span><b>Reset de Ranking:</b> Todos parten de cero cada mes para dar oportunidad a nuevos guerreros.</span></li>
+          <li><span style="color: #f59e0b;">⚡</span> <span><b>Conserva tu Honor:</b> Tus medallas y nivel de cuenta (I-VII) son permanentes.</span></li>
+        </ul>
+      </div>
+
+      <div class="card" style="border: 1px solid rgba(56, 189, 248, 0.4); background: rgba(15, 23, 42, 0.95); padding: 30px; position: relative; box-shadow: 0 4px 25px rgba(56, 189, 248, 0.1);">
+        <div style="position: absolute; top: 15px; right: 15px; background: #38bdf8; color: #000; font-size: 10px; font-weight: 900; padding: 4px 8px; border-radius: 4px;">ALPHA ACCESS</div>
+        <div style="font-size: 40px; margin-bottom: 15px;">💎</div>
+        <h2 style="color: #38bdf8; margin-bottom: 10px; text-transform: uppercase; font-weight: 900; letter-spacing: 1px;">Privilegios Premium</h2>
+        <p style="color: #cddcb4; font-size: 15px; line-height: 1.6; margin-bottom: 15px;">Conviértete en un Guerrero Alpha y desbloquea:</p>
+        <ul class="benefit-list">
+          <li><span style="color: #38bdf8;">💎</span> <span><b>750 Monedas Mensuales:</b> Créditos directos para gastar en el Altar cada mes.</span></li>
+          <li><span style="color: #38bdf8;">💎</span> <span><b>Final del Códice:</b> Acceso exclusivo al <b>Nivel VII (Dinosaurio Legendario)</b>.</span></li>
+          <li><span style="color: #38bdf8;">💎</span> <span><b>Juegos Exclusivos:</b> Prueba antes que nadie los nuevos títulos y salas.</span></li>
+          <li><span style="color: #38bdf8;">💎</span> <span><b>Identidad:</b> Iconos y marcos dorados en el ranking global.</span></li>
+        </ul>
+        <a class="btn" style="background: #38bdf8; color: #000; width: 100%; font-weight: bold; margin-top: 15px; border: none; transition: transform 0.2s;" href="profile.html">⚡ Obtener Premium Ahora</a>
+      </div>
+
     </div>
   </section>
 
@@ -159,8 +204,8 @@
     <div class="card" style="border-color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);">
       <div class="card-body">
         <div class="section-title" style="margin-bottom:15px; border-bottom: 1px solid rgba(245, 158, 11, 0.3); padding-bottom: 10px;">
-          <h2>🌍 Ranking Global de RankArena</h2>
-          <div class="hint">Suma total de puntos de todos los guerreros activos</div>
+          <h2>🌍 Ranking Global de la Season</h2>
+          <div class="hint">Suma total de puntos. ¡El Top 1 ganará un emblema exclusivo al final del mes!</div>
         </div>
         <table class="table" style="width: 100%; text-align: left;">
           <thead>
@@ -171,7 +216,7 @@
             </tr>
           </thead>
           <tbody id="globalLeaderboardBody">
-            <tr><td colspan="3" class="muted" style="text-align:center; padding: 20px 0;">Cargando a los mejores guerreros...</td></tr>
+            <tr><td colspan="3" class="muted" style="text-align:center; padding: 20px 0;">Cargando guerreros de la temporada...</td></tr>
           </tbody>
         </table>
       </div>

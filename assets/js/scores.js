@@ -15,8 +15,17 @@ export async function saveHighScore(uid, nickname, gameId, newScore) {
       const userSnap = await tx.get(userRef);
       
       let oldScore = 0;
+      let currentLevel = 1;
+      let currentBadge = "1";
+
       if (scoreSnap.exists()) {
         oldScore = Number(scoreSnap.data().score || 0);
+      }
+
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        currentLevel = userData.level || 1;
+        currentBadge = userData.badge || "1";
       }
 
       // Solo guardamos si ha superado su récord personal en este juego
@@ -26,6 +35,8 @@ export async function saveHighScore(uid, nickname, gameId, newScore) {
           nickname: nickname || "Jugador",
           gameId,
           score: newScore,
+          level: currentLevel, // Guardamos nivel actual en la foto del score
+          badge: currentBadge, // Guardamos insignia actual en la foto del score
           updatedAt: serverTimestamp()
         }, { merge: true });
 
@@ -33,7 +44,10 @@ export async function saveHighScore(uid, nickname, gameId, newScore) {
         let globalScore = userSnap.exists() ? Number(userSnap.data().globalScore || 0) : 0;
         globalScore = globalScore - oldScore + newScore;
         
-        tx.set(userRef, { globalScore, updatedAt: serverTimestamp() }, { merge: true });
+        tx.set(userRef, { 
+            globalScore, 
+            updatedAt: serverTimestamp() 
+        }, { merge: true });
       }
     });
   } catch (error) {
@@ -42,9 +56,8 @@ export async function saveHighScore(uid, nickname, gameId, newScore) {
   }
 }
 
-// Obtener el Top 10 de un juego específico (SOLUCIÓN AL ERROR DEL ÍNDICE)
+// Obtener el Top 10 de un juego específico
 export async function getGameLeaderboard(gameId) {
-  // Solo filtramos por el juego (evitamos el orderBy de Firebase para no necesitar el índice)
   const q = query(
     collection(db, "scores"),
     where("gameId", "==", gameId)
@@ -53,16 +66,12 @@ export async function getGameLeaderboard(gameId) {
   const snap = await getDocs(q);
   const results = snap.docs.map(d => d.data());
 
-  // Ordenamos de mayor a menor directamente con JavaScript
   results.sort((a, b) => (b.score || 0) - (a.score || 0));
-
-  // Devolvemos solo los 10 primeros
   return results.slice(0, 10);
 }
 
 // Obtener el Top 10 Global (Usuarios con más puntos en total)
 export async function getGlobalLeaderboard() {
-  // Como aquí solo ordenamos por una cosa (globalScore), NO pide índice compuesto
   const q = query(
     collection(db, "users"),
     orderBy("globalScore", "desc"),
@@ -70,16 +79,17 @@ export async function getGlobalLeaderboard() {
   );
   const snap = await getDocs(q);
   
-  // Mapeamos los datos y filtramos a los que tienen 0 puntos para que no salgan
   return snap.docs.map(d => {
     const data = d.data();
     return {
       nickname: data.nickname || "Jugador",
       score: data.globalScore || 0,
-      badge: data.badge || 1
+      badge: data.badge || "1",
+      level: data.level || 1 // <-- CRÍTICO: Ahora recuperamos el nivel para el ranking
     };
   }).filter(user => user.score > 0); 
 }
+
 // 4. Obtener el Top 10 de ELO (Especial para Ajedrez)
 export async function getEloLeaderboard() {
   try {
@@ -89,14 +99,13 @@ export async function getEloLeaderboard() {
       const data = d.data();
       return {
         nickname: data.nickname || "Jugador",
-        elo: Number(data.elo || 1200), // Si no tiene, por defecto es 1200
-        badge: data.badge || 1
+        elo: Number(data.elo || 1200),
+        badge: data.badge || "1",
+        level: data.level || 1 // También incluimos el nivel aquí
       };
     });
 
-    // Ordenamos de mayor a menor ELO
     usersList.sort((a, b) => b.elo - a.elo);
-
     return usersList.slice(0, 10);
   } catch (error) {
     console.error("Error obteniendo ranking de ELO:", error);
