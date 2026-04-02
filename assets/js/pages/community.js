@@ -4,10 +4,6 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/f
 
 const POSTS_KEY = "rankarena_posts";
 
-/**
- * Obtiene el nivel real de Firebase. 
- * Si no está logueado o hay error, devuelve 1.
- */
 async function getRealLevel(user) {
     if (!user) return 1;
     try {
@@ -16,7 +12,7 @@ async function getRealLevel(user) {
             return parseInt(snap.data().level) || 1;
         }
     } catch (e) {
-        console.error("Error consultando nivel en Firebase:", e);
+        console.error("Error consultando nivel:", e);
     }
     return 1;
 }
@@ -42,11 +38,8 @@ function renderFeed(posts) {
 
     feed.innerHTML = posts.map(p => {
         const pLevel = parseInt(p.level) || 1;
-        
-        // Conversión manual a Romano para asegurar el II
         const romanos = ["", "I", "II", "III", "IV", "V", "VI", "VII"];
         const roman = romanos[pLevel] || "I";
-
         const isMax = pLevel === 7;
         const nameColor = isMax ? '#10b981' : 'white';
 
@@ -72,7 +65,6 @@ function renderFeed(posts) {
         </div>`;
     }).join("");
 
-    // Bind de likes
     document.querySelectorAll(".like-btn").forEach(btn => {
         btn.onclick = () => {
             const all = loadPosts();
@@ -89,13 +81,16 @@ function renderFeed(posts) {
 document.addEventListener("DOMContentLoaded", async () => {
     let currentUser = null;
     let ALL_GAMES = [];
-    if (typeof loadGames === 'function') ALL_GAMES = await loadGames();
+    
+    // Intentar cargar juegos
+    try {
+        if (typeof loadGames === 'function') ALL_GAMES = await loadGames();
+    } catch (e) { console.error(e); }
 
     const sel = document.getElementById("gameFilter");
     const postBtn = document.getElementById("post");
     const textEl = document.getElementById("text");
 
-    // Rellenar select
     if (sel && ALL_GAMES.length > 0) {
         ALL_GAMES.forEach(g => {
             const opt = document.createElement("option");
@@ -104,44 +99,57 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // Detectar login
+    // CARGA INICIAL DEL FEED
+    renderFeed(loadPosts());
+
+    // ESCUCHAR USUARIO
     onAuthStateChanged(auth, async (user) => {
         currentUser = user;
-        if (!user) {
-            if(postBtn) postBtn.disabled = true;
-            if(textEl) textEl.placeholder = "Inicia sesión para publicar...";
-        } else {
+        if (user) {
             if(postBtn) postBtn.disabled = false;
             if(textEl) textEl.placeholder = "Escribe un mensaje...";
+        } else {
+            if(postBtn) postBtn.disabled = true;
+            if(textEl) textEl.placeholder = "Inicia sesión para publicar...";
         }
-        renderFeed(loadPosts());
     });
 
     if (postBtn) {
         postBtn.onclick = async () => {
+            if (!currentUser) return alert("Debes estar logueado");
+            
             const text = (textEl.value || "").trim();
             if (text.length < 2) return;
 
-            // --- AQUÍ ESTÁ EL ARREGLO ---
-            // Consultamos Firebase justo antes de publicar el post
-            const realLevel = await getRealLevel(currentUser);
-            const myNick = localStorage.getItem("gh_nickname") || "Guerrero";
+            // Bloquear botón mientras procesa
+            postBtn.disabled = true;
+            postBtn.textContent = "...";
 
-            const posts = loadPosts();
-            posts.push({
-                id: String(Date.now() + Math.random()),
-                user: myNick,
-                level: realLevel, // Guardamos el nivel real (ej: 2)
-                text: text,
-                ts: Date.now(),
-                gameId: sel.value === "all" ? "general" : sel.value,
-                gameTitle: sel.value === "all" ? "General" : (ALL_GAMES.find(g => g.id === sel.value)?.title || "General"),
-                likes: 0
-            });
+            try {
+                const realLevel = await getRealLevel(currentUser);
+                const myNick = localStorage.getItem("gh_nickname") || "Guerrero";
 
-            savePosts(posts);
-            textEl.value = "";
-            renderFeed(posts);
+                const posts = loadPosts();
+                posts.push({
+                    id: String(Date.now() + Math.random()),
+                    user: myNick,
+                    level: realLevel,
+                    text: text,
+                    ts: Date.now(),
+                    gameId: sel.value === "all" ? "general" : sel.value,
+                    gameTitle: sel.value === "all" ? "General" : (ALL_GAMES.find(g => g.id === sel.value)?.title || "General"),
+                    likes: 0
+                });
+
+                savePosts(posts);
+                textEl.value = "";
+                renderFeed(posts);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                postBtn.disabled = false;
+                postBtn.textContent = "Publicar";
+            }
         };
     }
 });
