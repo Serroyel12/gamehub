@@ -26,11 +26,11 @@ function updateNavbarUser() {
   if (!navUser) return; // páginas que no tengan navbar completa
 
   if (user && user.name) {
-    navUser.textContent = `👤 ${user.name}`;
+    navUser.textContent = ` ${user.name}`;
     if (navLogin) navLogin.style.display = "none";
     if (navLogout) navLogout.style.display = "inline-flex";
   } else {
-    navUser.textContent = "👤 Invitado";
+    navUser.textContent = " Invitado";
     if (navLogin) navLogin.style.display = "inline-flex";
     if (navLogout) navLogout.style.display = "none";
   }
