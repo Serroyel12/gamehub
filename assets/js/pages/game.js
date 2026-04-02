@@ -190,7 +190,7 @@ async function loadLeaderboard() {
         return `
           <tr>
             <td style="color:var(--primary); font-weight:bold;">#${idx + 1}</td>
-            <td style="font-weight:700; color: ${nameColor};">👤 ${displayName}</td>
+            <td style="font-weight:700; color: ${nameColor};"> ${displayName}</td>
             <td style="font-weight:900; color:#fff; font-size:16px; text-align: right;">${s.score}</td>
           </tr>
         `;

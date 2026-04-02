@@ -46,7 +46,7 @@ function renderFeed(posts){
     <div class="card" style="margin-bottom:12px;">
       <div class="card-body">
         <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
-          <div style="font-weight:900;">👤 ${p.user}</div>
+          <div style="font-weight:900;"> ${p.user}</div>
           <div style="color:var(--muted); font-size:12px;">${fmtTime(p.ts)} · 🎮 ${p.gameTitle}</div>
         </div>
 
