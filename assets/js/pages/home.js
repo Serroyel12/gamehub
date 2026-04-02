@@ -1,6 +1,5 @@
 // assets/js/pages/home.js
 import { getGlobalLeaderboard } from "../scores.js";
-// ELIMINADO EL IMPORT DE UI.JS AQUÍ
 
 async function loadGames() {
   return [
@@ -76,10 +75,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
       tbody.innerHTML = topUsers.map((u, idx) => {
-          // USAMOS LA FUNCIÓN GLOBAL getRomanLevel
+          // USAMOS LA FUNCIÓN GLOBAL getRomanLevel definida en ui.js
           const level = u.level || 1;
           const roman = typeof getRomanLevel !== 'undefined' ? getRomanLevel(level) : "I";
           const isMax = level === 7;
+
+          // LÓGICA DE TRAMPOSO
+          const isCheater = u.isCheater || false;
+          const displayName = isCheater ? `⚠️ ${u.nickname}` : u.nickname;
+          
+          // Color: Rojo si es tramposo (#ef4444), Verde si es nivel max (#10b981), blanco por defecto
+          let nameColor = "white";
+          if (isCheater) {
+              nameColor = "#ef4444";
+          } else if (isMax) {
+              nameColor = "#10b981";
+          }
 
           return `
             <tr>
@@ -87,8 +98,8 @@ document.addEventListener("DOMContentLoaded", async () => {
               <td>
                 <div style="display:flex; align-items:center; gap:10px;">
                   <img src="assets/img/iconos/${u.badge || 1}.png" style="width:28px; height:28px; object-fit:contain; border-radius:4px;">
-                  <span style="font-weight:700; color: ${isMax ? '#10b981' : 'white'};">
-                    ${u.nickname} <span class="roman-badge ${isMax ? 'roman-badge-max' : ''}">${roman}</span>
+                  <span style="font-weight:700; color: ${nameColor};">
+                    ${displayName} <span class="roman-badge ${isMax && !isCheater ? 'roman-badge-max' : ''}">${roman}</span>
                   </span>
                 </div>
               </td>
@@ -97,7 +108,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           `;
       }).join("");
     } catch (error) {
-      console.error(error);
+      console.error("Error al renderizar el ranking:", error);
       tbody.innerHTML = `<tr><td colspan="3" style="color:var(--danger); text-align:center;">Error cargando ranking global.</td></tr>`;
     }
   }

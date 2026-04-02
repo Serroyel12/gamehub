@@ -17,6 +17,7 @@ export async function saveHighScore(uid, nickname, gameId, newScore) {
       let oldScore = 0;
       let currentLevel = 1;
       let currentBadge = "1";
+      let isCheater = false;
 
       if (scoreSnap.exists()) {
         oldScore = Number(scoreSnap.data().score || 0);
@@ -26,6 +27,7 @@ export async function saveHighScore(uid, nickname, gameId, newScore) {
         const userData = userSnap.data();
         currentLevel = userData.level || 1;
         currentBadge = userData.badge || "1";
+        isCheater = userData.isCheater || false; // Mantenemos el estado de tramposo en la foto del score
       }
 
       // Solo guardamos si ha superado su récord personal en este juego
@@ -35,8 +37,9 @@ export async function saveHighScore(uid, nickname, gameId, newScore) {
           nickname: nickname || "Jugador",
           gameId,
           score: newScore,
-          level: currentLevel, // Guardamos nivel actual en la foto del score
-          badge: currentBadge, // Guardamos insignia actual en la foto del score
+          level: currentLevel,
+          badge: currentBadge,
+          isCheater: isCheater, // <-- IMPORTANTE: Guardamos el estado aquí también
           updatedAt: serverTimestamp()
         }, { merge: true });
 
@@ -64,7 +67,14 @@ export async function getGameLeaderboard(gameId) {
   );
   
   const snap = await getDocs(q);
-  const results = snap.docs.map(d => d.data());
+  // Devolvemos todos los datos, incluyendo isCheater si existe
+  const results = snap.docs.map(d => {
+    const data = d.data();
+    return {
+        ...data,
+        isCheater: data.isCheater || false // Aseguramos que el campo viaje al frontend
+    };
+  });
 
   results.sort((a, b) => (b.score || 0) - (a.score || 0));
   return results.slice(0, 10);
@@ -85,7 +95,8 @@ export async function getGlobalLeaderboard() {
       nickname: data.nickname || "Jugador",
       score: data.globalScore || 0,
       badge: data.badge || "1",
-      level: data.level || 1 // <-- CRÍTICO: Ahora recuperamos el nivel para el ranking
+      level: data.level || 1,
+      isCheater: data.isCheater || false // <-- CRÍTICO: Ahora sí devolvemos el campo
     };
   }).filter(user => user.score > 0); 
 }
@@ -101,7 +112,8 @@ export async function getEloLeaderboard() {
         nickname: data.nickname || "Jugador",
         elo: Number(data.elo || 1200),
         badge: data.badge || "1",
-        level: data.level || 1 // También incluimos el nivel aquí
+        level: data.level || 1,
+        isCheater: data.isCheater || false // <-- CRÍTICO: Para que se vea en el Ajedrez
       };
     });
 

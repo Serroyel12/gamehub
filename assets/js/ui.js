@@ -4,6 +4,17 @@ function getRomanLevel(lvl) {
     return romans[lvl] || "I";
 }
 
+/**
+ * NUEVA FUNCIÓN: Formatea el nombre del jugador.
+ * Si es tramposo, añade el icono de advertencia y color rojo.
+ */
+function formatPlayerName(nickname, isCheater = false) {
+    if (isCheater) {
+        return `<span style="color: #ef4444;" title="Jugador reportado por conducta antideportiva">⚠️ ${nickname}</span>`;
+    }
+    return nickname;
+}
+
 function getLocalBest(game) {
   if (!game || !game.scoreKey) return 0;
   const v = Number(localStorage.getItem(game.scoreKey) || 0);

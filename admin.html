@@ -34,11 +34,24 @@
       border: 1px solid rgba(245, 158, 11, 0.3);
       border-radius: 8px;
       padding: 10px;
+      margin-bottom: 20px;
     }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
     th { color: #f59e0b; text-transform: uppercase; font-size: 13px; }
     td { color: #cddcb4; font-size: 14px; }
+    
+    .ban-hammer-card {
+      background: rgba(220, 38, 38, 0.05);
+      border: 1px solid #dc2626;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
@@ -67,7 +80,18 @@
 
   <main class="container">
     <h1 style="color: #ef4444; text-transform: uppercase; margin-top: 20px;">🛠️ Centro de Control</h1>
-    <p style="color: #9ba896; margin-bottom: 30px;">Gestiona el contenido creado por los usuarios y revisa los reportes de la comunidad.</p>
+    <p style="color: #9ba896; margin-bottom: 30px;">Gestión de integridad de la arena y reportes de la comunidad.</p>
+
+    <section class="section">
+      <h2 style="color: #ef4444; border-bottom: 1px solid rgba(239, 68, 68, 0.3); padding-bottom: 10px;">🔨 Ban Hammer - Control de Tramposos</h2>
+      <div class="ban-hammer-card">
+        <div style="flex: 1; min-width: 250px;">
+          <input type="text" id="cheaterNickname" placeholder="Escribe el Nickname exacto..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #dc2626; background: rgba(0,0,0,0.5); color: #fff;">
+        </div>
+        <button id="btnMarkCheater" class="btn" style="background: #dc2626; color: white;">MARCAR TRAMPOSO ⚠️</button>
+        <button id="btnClearCheater" class="btn" style="background: #10b981; color: white;">LIMPIAR MARCA ✅</button>
+      </div>
+    </section>
 
     <section class="section">
       <h2 style="color: #f59e0b; border-bottom: 1px solid rgba(245, 158, 11, 0.3); padding-bottom: 10px;">🚨 Reportes Pendientes</h2>
@@ -82,13 +106,12 @@
               <th>Acción</th>
             </tr>
           </thead>
-          <tbody id="reportsTableBody">
-            </tbody>
+          <tbody id="reportsTableBody"></tbody>
         </table>
       </div>
     </section>
 
-    <div class="spacer"></div>
+    <div class="spacer" style="height: 30px;"></div>
 
     <section class="section">
       <h2 style="color: #10b981; border-bottom: 1px solid rgba(16, 185, 129, 0.3); padding-bottom: 10px;">🎮 Juegos de la Comunidad</h2>
@@ -102,54 +125,79 @@
               <th>Acción</th>
             </tr>
           </thead>
-          <tbody id="gamesTableBody">
-            </tbody>
+          <tbody id="gamesTableBody"></tbody>
         </table>
       </div>
     </section>
   </main>
 </div>
 
-<script>
-  // --- SISTEMA DE LOGIN FALSO ---
-  const PASSWORD_CORRECTA = "UCAM12"; // Cambia la contraseña aquí
+<script type="module">
+  // Importaciones necesarias para el Ban Hammer
+  import { db } from "./assets/js/firebase.js";
+  import { collection, query, where, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+  const PASSWORD_CORRECTA = "UCAM12"; 
   
   document.getElementById("loginBtn").addEventListener("click", () => {
     const pass = document.getElementById("adminPassword").value;
     if (pass === PASSWORD_CORRECTA) {
       document.getElementById("loginScreen").style.display = "none";
       document.getElementById("adminDashboard").style.display = "block";
-      cargarDatosAdmin(); // Cargar la información solo cuando se hace login
+      cargarDatosAdmin();
     } else {
-      alert("Contraseña incorrecta. Intruso detectado.");
+      alert("Contraseña incorrecta.");
     }
   });
 
+  // --- LÓGICA DE BAN HAMMER (FIREBASE) ---
+  async function toggleCheaterStatus(status) {
+    const nick = document.getElementById('cheaterNickname').value.trim();
+    if (!nick) return alert("Introduce un nickname.");
+
+    try {
+      const q = query(collection(db, "users"), where("nickname", "==", nick));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        return alert("No se encontró ningún usuario con ese nickname.");
+      }
+
+      const userDoc = querySnapshot.docs[0];
+      await updateDoc(doc(db, "users", userDoc.id), {
+        isCheater: status
+      });
+
+      alert(`Éxito: Marca de tramposo ${status ? 'aplicada' : 'retirada'} a ${nick}`);
+      document.getElementById('cheaterNickname').value = "";
+    } catch (error) {
+      console.error(error);
+      alert("Error al actualizar la base de datos.");
+    }
+  }
+
+  document.getElementById('btnMarkCheater').onclick = () => toggleCheaterStatus(true);
+  document.getElementById('btnClearCheater').onclick = () => toggleCheaterStatus(false);
+
+
+  // --- FUNCIONES ORIGINALES (LOCAL STORAGE) ---
   function cargarDatosAdmin() {
-    const reportes = JSON.parse(localStorage.getItem('rankArenaReports')) || [];
-    const juegos = JSON.parse(localStorage.getItem('rankArenaCreatorGames')) || [];
-    
-    // Actualizar la interfaz
     renderizarReportes();
     renderizarJuegos();
-
-    // Añadir una notificación visual rápida en el título
+    const reportes = JSON.parse(localStorage.getItem('rankArenaReports')) || [];
     if (reportes.length > 0) {
       document.querySelector('h1').innerHTML = `🛠️ Centro de Control <span style="background: #dc2626; color: white; font-size: 14px; padding: 4px 12px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">${reportes.length} AVISOS</span>`;
     }
   }
 
-  // --- GESTIÓN DE REPORTES ---
   function renderizarReportes() {
     const reportes = JSON.parse(localStorage.getItem('rankArenaReports')) || [];
     const tbody = document.getElementById('reportsTableBody');
     tbody.innerHTML = '';
-
     if (reportes.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ba896;">No hay reportes nuevos. ¡Todo está tranquilo!</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ba896;">No hay reportes nuevos.</td></tr>';
       return;
     }
-
     reportes.forEach(rep => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -165,26 +213,14 @@
     });
   }
 
-  window.resolverReporte = function(id) {
-    if(confirm("¿Seguro que quieres marcar este reporte como resuelto? (Se eliminará de la lista)")) {
-      let reportes = JSON.parse(localStorage.getItem('rankArenaReports')) || [];
-      reportes = reportes.filter(r => r.id !== id);
-      localStorage.setItem('rankArenaReports', JSON.stringify(reportes));
-      renderizarReportes(); // Actualizar la tabla
-    }
-  }
-
-  // --- GESTIÓN DE JUEGOS ---
   function renderizarJuegos() {
     const juegos = JSON.parse(localStorage.getItem('rankArenaCreatorGames')) || [];
     const tbody = document.getElementById('gamesTableBody');
     tbody.innerHTML = '';
-
     if (juegos.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #9ba896;">No hay juegos de la comunidad subidos todavía.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #9ba896;">No hay juegos de la comunidad.</td></tr>';
       return;
     }
-
     juegos.forEach(juego => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -199,13 +235,21 @@
     });
   }
 
+  window.resolverReporte = function(id) {
+    if(confirm("¿Marcar como resuelto?")) {
+      let reportes = JSON.parse(localStorage.getItem('rankArenaReports')) || [];
+      reportes = reportes.filter(r => r.id !== id);
+      localStorage.setItem('rankArenaReports', JSON.stringify(reportes));
+      renderizarReportes();
+    }
+  }
+
   window.eliminarJuego = function(id) {
-    if(confirm("¿ATENCIÓN! ¿Seguro que quieres borrar este juego de la plataforma de forma permanente?")) {
+    if(confirm("¿Borrar juego permanentemente?")) {
       let juegos = JSON.parse(localStorage.getItem('rankArenaCreatorGames')) || [];
       juegos = juegos.filter(j => j.id !== id);
       localStorage.setItem('rankArenaCreatorGames', JSON.stringify(juegos));
-      renderizarJuegos(); // Actualizar la tabla
-      alert("Juego eliminado. Ya no aparecerá en el catálogo.");
+      renderizarJuegos();
     }
   }
 </script>
