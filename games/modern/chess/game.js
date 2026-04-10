@@ -35,6 +35,13 @@ const bottomBadgeEl = document.getElementById("bottomBadge");
 const bottomNameEl = document.getElementById("bottomName");
 const bottomEloEl = document.getElementById("bottomElo");
 
+const btnStartTimer = document.getElementById("btnStartTimer");
+const topTimerEl = document.getElementById("topTimer");
+const bottomTimerEl = document.getElementById("bottomTimer");
+
+let timerInterval = null;
+const INITIAL_TIME = 600; // 10 minutos
+
 const ChessCtor = window.Chess || null;
 const ChessboardCtor = window.Chessboard || null;
 
@@ -126,6 +133,57 @@ function randomCode(len = 6) {
 }
 function turnLabel(t) { return t === "w" ? "Blancas" : "Negras"; }
 
+function formatTime(seconds) {
+  if (seconds <= 0) return "00:00";
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+function startLocalTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (!matchData || matchData.status !== "active" || matchData.winner) {
+      clearInterval(timerInterval);
+      return;
+    }
+    const now = Date.now();
+    const lastUpdate = matchData.updatedAt?.toDate().getTime() || now;
+    const elapsed = Math.floor((now - lastUpdate) / 1000);
+
+    let wTime = matchData.whiteTime ?? INITIAL_TIME;
+    let bTime = matchData.blackTime ?? INITIAL_TIME;
+
+    if (matchData.turn === "w") wTime -= elapsed;
+    else bTime -= elapsed;
+
+    if (myColor === "w") {
+      bottomTimerEl.textContent = formatTime(wTime);
+      topTimerEl.textContent = formatTime(bTime);
+      bottomTimerEl.classList.toggle("timer-active", matchData.turn === "w");
+      topTimerEl.classList.toggle("timer-active", matchData.turn === "b");
+    } else {
+      bottomTimerEl.textContent = formatTime(bTime);
+      topTimerEl.textContent = formatTime(wTime);
+      bottomTimerEl.classList.toggle("timer-active", matchData.turn === "b");
+      topTimerEl.classList.toggle("timer-active", matchData.turn === "w");
+    }
+
+    if (wTime <= 0 || bTime <= 0) handleTimeout(wTime <= 0 ? "w" : "b");
+  }, 1000);
+}
+
+async function handleTimeout(loser) {
+  clearInterval(timerInterval);
+  if (!matchId || matchData.winner) return;
+  const winner = loser === "w" ? "b" : "w";
+  await updateDoc(doc(db, "matches", matchId), {
+    winner: winner,
+    status: "finished",
+    updatedAt: serverTimestamp()
+  });
+}
+
 // UI
 function renderHistory() {
   const history = game.history({ verbose: true });
@@ -186,6 +244,10 @@ async function pushStateToFirestore() {
   if (!onlineMode || !matchId || !matchData) return;
   if (matchData.turn !== myColor) return;
 
+  const now = Date.now();
+  const lastUpdate = matchData.updatedAt?.toDate().getTime() || now;
+  const elapsed = Math.floor((now - lastUpdate) / 1000);
+
   const ref = doc(db, "matches", matchId);
   let winner = null;
   if (game.in_checkmate && game.in_checkmate()) {
@@ -194,12 +256,20 @@ async function pushStateToFirestore() {
     winner = "draw";
   }
 
-  await updateDoc(ref, {
+  let updateData = {
     fen: game.fen(),
     turn: game.turn(),
     winner: winner,
     updatedAt: serverTimestamp()
-  });
+  };
+
+  // Solo si el reloj está activado
+  if (matchData.whiteTime !== undefined) {
+    if (myColor === "w") updateData.whiteTime = (matchData.whiteTime ?? INITIAL_TIME) - elapsed;
+    else updateData.blackTime = (matchData.blackTime ?? INITIAL_TIME) - elapsed;
+  }
+
+  await updateDoc(ref, updateData);
 }
 
 function onDrop(source, target) {
@@ -310,7 +380,26 @@ function bindMatch(code) {
 
     updateUI();
 
+    // ==========================================
+    // LÓGICA DE TIEMPOS Y RELOJES (NUEVO)
+    // ==========================================
+    if (matchData.whiteTime !== undefined) {
+      // Si el reloj está activado en Firebase, mostramos y arrancamos
+      btnStartTimer.style.display = "none";
+      topTimerEl.style.display = "block";
+      bottomTimerEl.style.display = "block";
+      startLocalTimer();
+    } else {
+      // Si no está activado, solo mostramos el botón al admin (blancas) si la partida es activa
+      topTimerEl.style.display = "none";
+      bottomTimerEl.style.display = "none";
+      const isGameActive = matchData.status === "active" && !matchData.winner;
+      btnStartTimer.style.display = (onlineMode && isGameActive) ? "inline-flex" : "none";
+    }
+
+    // ==========================================
     // PROCESAMIENTO AUTOMÁTICO DE ELO
+    // ==========================================
     if (matchData.winner && myColor) {
       const myProcessedKey = myColor === "w" ? "whiteProcessed" : "blackProcessed";
       
@@ -322,21 +411,24 @@ function bindMatch(code) {
         const opElo = myColor === "w" ? (matchData.blackElo||1200) : (matchData.whiteElo||1200);
 
         let scoreActual = isDraw ? 0.5 : (iWon ? 1 : 0);
-        const K = 18; // Fórmula del profesor: Si elo igual y ganas -> K*(1 - 0.5) = 18 * 0.5 = +9 pts.
+        const K = 18; 
         const expected = 1 / (1 + Math.pow(10, (opElo - myElo) / 400));
         const change = Math.round(K * (scoreActual - expected));
 
-        const newElo = Math.max(100, myElo + change); // El ELO no puede bajar de 100
+        const newElo = Math.max(100, myElo + change);
 
         // Guardamos en nuestro perfil
         updateDoc(doc(db, "users", me.uid), { elo: newElo }).catch(console.error);
-        // Marcamos la partida como procesada para no dar los puntos dos veces
+        // Marcamos la partida como procesada
         updateDoc(doc(db, "matches", matchId), { [myProcessedKey]: true }).catch(console.error);
 
         // Actualizamos UI visualmente
         const changeTxt = change >= 0 ? `+${change}` : change;
         bottomEloEl.textContent = `${newElo} (${changeTxt})`;
         setStatus(`🏁 FIN. Has ${iWon ? 'ganado' : (isDraw ? 'empatado' : 'perdido')}. ELO: ${changeTxt}`);
+        
+        // Detener el cronómetro si existía
+        if (timerInterval) clearInterval(timerInterval);
       }
     }
 
@@ -445,6 +537,23 @@ boardConfig = {
 };
 
 board = ChessboardCtor("board", boardConfig);
+
+
+// Al final de games/modern/chess/game.js
+
+btnStartTimer?.addEventListener("click", async () => {
+  if (!onlineMode || !matchId) return;
+  try {
+    await updateDoc(doc(db, "matches", matchId), {
+      whiteTime: INITIAL_TIME,
+      blackTime: INITIAL_TIME,
+      updatedAt: serverTimestamp()
+    });
+  } catch (e) {
+    console.error("Error al activar el reloj:", e);
+  }
+});
+
 
 onAuthStateChanged(auth, async (user) => {
   me = user || null;

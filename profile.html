@@ -47,7 +47,7 @@
       <a href="community.html">Comunidad</a>
       <a href="noticias.html">Ecos Jurásicos</a>
       <a href="altar.html">Altar</a>
-      <a href="historias.html">Codice Prehisotrico</a>
+      <a href="historias.html">Códice</a>
     </nav>
   </div>
 </header>
@@ -77,6 +77,11 @@
               <div style="font-size:11px; color:var(--muted);">Nivel actual: <span id="currentLevelText">1</span></div>
             </div>
             <a href="evolucion.html" class="btn" style="background:#10b981; color:#000; font-size:12px; padding: 8px 15px; font-weight:bold; text-decoration:none; border-radius:8px;">VER EVOLUCIÓN</a>
+          </div>
+
+          <div id="tournamentBadgeSection" style="display: none;">
+            <span class="section-label" style="color: #38bdf8;">🏆 Reliquia de Campeón</span>
+            <div id="tournamentBadgeGrid" class="badge-grid" style="grid-template-columns: repeat(5, 70px);"></div>
           </div>
 
           <span class="section-label">Insignias Básicas (1-10)</span>
@@ -139,6 +144,7 @@
   ];
 
   function renderBadgeSelectors(userBadge, inventory) {
+    // 1. Renderizar Insignias Básicas
     $("badgeGrid").innerHTML = "";
     for (let n = 1; n <= 10; n++) {
       const bId = n.toString();
@@ -150,6 +156,7 @@
       $("badgeGrid").appendChild(btn);
     }
 
+    // 2. Renderizar Reliquias Místicas (Gacha)
     const gachaContainer = $("gachaBadgeGrid");
     gachaContainer.innerHTML = "";
     const misticasIds = ["g11", "g12", "g13", "g14", "g15"];
@@ -169,6 +176,46 @@
             gachaContainer.appendChild(btn);
         });
     }
+
+    // 3. Renderizar Insignia de Torneo (Si la tiene en el inventario)
+  // 3. Renderizar Insignia de Torneo (SIEMPRE VISIBLE)
+const tournamentContainer = $("tournamentBadgeGrid");
+const tournamentSection = $("tournamentBadgeSection");
+tournamentContainer.innerHTML = "";
+
+// Ahora la sección siempre es visible para crear deseo de conseguirla
+tournamentSection.style.display = "block";
+
+const hasBadge = (inventory || []).includes("Torneo1");
+const btn = document.createElement("button");
+
+// Si no la tiene, le ponemos una clase de bloqueo y quitamos el evento click
+btn.className = "badge-btn " + 
+                (userBadge === "Torneo1" ? "is-selected " : "") + 
+                (!hasBadge ? "is-locked" : "");
+
+// Tooltip dinámico: Si la tiene, nombre normal. Si no, el mensaje de exclusividad.
+const tooltip = hasBadge 
+    ? "Reliquia de Campeón: I Torneo Jurásico" 
+    : "Exclusiva al primer ganador del primer torneo de RankArena";
+
+btn.setAttribute("title", tooltip);
+
+// Estilo extra para que destaque incluso bloqueada (en blanco y negro)
+btn.innerHTML = `<img src="assets/img/iconos/Torneo1.png" style="${!hasBadge ? 'filter: grayscale(1); opacity: 0.3;' : 'filter: drop-shadow(0 0 5px #f59e0b);'}">`;
+
+if (hasBadge) {
+    btn.onclick = () => { 
+        selectedBadge = "Torneo1"; 
+        renderBadgeSelectors("Torneo1", inventory); 
+    };
+} else {
+    // Si intentan clicar sin tenerla, podemos dar un aviso sutil
+    btn.onclick = () => alert("Esta reliquia solo pertenece al Campeón del I Torneo Jurásico.");
+}
+
+tournamentContainer.appendChild(btn);
+  
   }
 
   function renderAchievements(userData) {
@@ -237,7 +284,8 @@
         const d = fSnap.data();
         const div = document.createElement("div");
         div.style = "display:flex; align-items:center; gap:10px; background:rgba(15,23,42,0.5); padding:8px; border-radius:10px; border:1px solid rgba(255,255,255,0.05); margin-bottom:5px;";
-        const badgeSrc = `assets/img/iconos/${d.badge || 1}.png`;
+        // Manejar insignia de torneo también en el renderizado de amigos
+        const badgeSrc = d.badge === "Torneo1" ? `assets/img/iconos/Torneo1.png` : `assets/img/iconos/${d.badge || 1}.png`;
         div.innerHTML = `
           <img src="${badgeSrc}" style="width:30px; height:30px; object-fit:contain;">
           <div style="flex:1; font-size:13px; font-weight:bold;">${d.nickname}</div>

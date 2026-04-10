@@ -71,6 +71,21 @@
       gap: 10px;
     }
     .benefit-list b { color: #fff; }
+
+    /* ESTILO ANIMACIÓN TROFEO */
+    @keyframes pulse-gold {
+      0% { transform: scale(1); filter: drop-shadow(0 0 2px #f59e0b); }
+      50% { transform: scale(1.2); filter: drop-shadow(0 0 10px #f59e0b); }
+      100% { transform: scale(1); filter: drop-shadow(0 0 2px #f59e0b); }
+    }
+    .trofeo-active {
+      animation: pulse-gold 2s infinite;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 20px;
+      margin-left: 10px;
+      display: none; /* Se activa por JS */
+    }
   </style>
 </head>
 <body>
@@ -103,12 +118,14 @@
       <a href="index.html" class="active">Inicio</a>
       <a href="games.html">Juegos</a>
       <a href="community.html">Comunidad</a>
-      <a href="noticias.html">Ecos Jurásicos</a>
+      <a href="noticias.html">Ecos </a>
       <a href="altar.html">Altar</a>
       <a href="historias.html">Códice</a>
     </nav>
 
     <div class="nav-right" style="display:flex; gap:10px; align-items:center;">
+      <a href="torneo.html" id="trofeoNav" class="trofeo-active" title="Ir al Torneo Activo">🏆</a>
+      
       <span class="pill"><b id="navUserName">Invitado</b></span>
       <a class="btn btn-ghost" id="navLoginBtn" href="login.html">Login</a>
       <a class="btn btn-ghost" id="navProfileBtn" href="profile.html" style="display:none;">Perfil</a>
@@ -170,7 +187,24 @@
     </div>
   </section>
 
- <section class="section">
+  <section class="section">
+    <div class="card" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border: 2px solid #f59e0b; position: relative; overflow: hidden; padding: 30px;">
+      <div style="position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+        <div>
+          <h2 style="color: #f59e0b; margin: 0; font-size: 28px; font-weight: 900; text-transform: uppercase;">🏆 I Torneo Jurásico de Estrategia</h2>
+          <p style="color: #cddcb4; font-size: 15px; margin-top: 10px; max-width: 600px;">
+            ¡La competición ha comenzado! Inscríbete para participar en las fases clasificatorias de <b>Ajedrez Online</b> y <b>Arena Conquest</b>. Los mejores guerreros aparecerán en el Códice Prehistórico.
+          </p>
+        </div>
+        <button id="btnInscribirseTorneo" class="btn btn-primary" style="padding: 15px 35px; font-weight: 900; letter-spacing: 1px; box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);">
+          ¡QUIERO INSCRIBIRME!
+        </button>
+      </div>
+      <div style="position: absolute; right: -10px; bottom: -20px; font-size: 100px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">🦖</div>
+    </div>
+  </section>
+
+  <section class="section">
     <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;">
       
       <div class="card" style="border: 1px solid rgba(245, 158, 11, 0.4); background: rgba(15, 23, 42, 0.95); padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
@@ -231,6 +265,8 @@
   document.addEventListener("DOMContentLoaded", () => {
     const welcomeModal = document.getElementById("welcomeModal");
     const closeBtn = document.getElementById("closeWelcomeBtn");
+    
+    // Modal de bienvenida
     if (!localStorage.getItem("rankArenaWelcomeSeen")) {
       welcomeModal.style.display = "flex";
       document.body.style.overflow = "hidden";
@@ -240,6 +276,35 @@
       document.body.style.overflow = "auto";
       localStorage.setItem("rankArenaWelcomeSeen", "true");
     });
+
+    // LÓGICA SIMULADA DEL TORNEO
+    const btnTorneo = document.getElementById('btnInscribirseTorneo');
+    const trofeoNav = document.getElementById('trofeoNav');
+
+    function actualizarEstadoTorneo() {
+      if (localStorage.getItem('torneo_inscrito') === 'true') {
+        if (btnTorneo) {
+          btnTorneo.textContent = "✅ INSCRITO";
+          btnTorneo.disabled = true;
+          btnTorneo.style.background = "#10b981";
+          btnTorneo.style.borderColor = "#059669";
+        }
+        if (trofeoNav) trofeoNav.style.display = "inline-block";
+      }
+    }
+
+    btnTorneo?.addEventListener('click', () => {
+      localStorage.setItem('torneo_inscrito', 'true');
+      
+      // Lanzar la Garra de ui.js si está disponible
+      if (window.showAchievementToast) {
+        window.showAchievementToast("Inscrito al Torneo", "¡Ya eres competidor del I Torneo Jurásico!");
+      }
+
+      actualizarEstadoTorneo();
+    });
+
+    actualizarEstadoTorneo();
   });
 </script>
 

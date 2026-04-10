@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>I Torneo Jurásico - RankArena</title>
+  <link rel="icon" type="image/png" href="assets/img/logo_dino.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="assets/css/base.css">
+  
+  <style>
+    /* Estilos específicos para la página de torneo */
+    .tournament-hero {
+      background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('assets/img/covers/ajedrez.jpg');
+      background-size: cover;
+      background-position: center;
+      border: 2px solid #f59e0b;
+      border-radius: 20px;
+      padding: 60px 20px;
+      text-align: center;
+      margin-bottom: 40px;
+      box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
+    }
+
+    .bracket-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      margin-top: 30px;
+      overflow-x: auto;
+      padding-bottom: 20px;
+    }
+
+    .bracket-column {
+      flex: 1;
+      min-width: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    .bracket-title {
+      color: #f59e0b;
+      font-size: 13px;
+      text-transform: uppercase;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 15px;
+      letter-spacing: 2px;
+      border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+      padding-bottom: 10px;
+    }
+
+    .match-box {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 12px;
+      padding: 15px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .match-box.active {
+      border-color: #f59e0b;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.1);
+      background: rgba(245, 158, 11, 0.03);
+    }
+
+    .player-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+    }
+
+    .player-row:first-child {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .player-name {
+      font-size: 14px;
+      color: #cddcb4;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .player-score {
+      font-weight: 900;
+      color: #f59e0b;
+      background: rgba(0,0,0,0.5);
+      padding: 3px 10px;
+      border-radius: 5px;
+      min-width: 28px;
+      text-align: center;
+      font-family: monospace;
+      font-size: 15px;
+    }
+
+    .winner .player-name {
+      color: #fff;
+      font-weight: bold;
+    }
+    .winner .player-score {
+      background: #f59e0b;
+      color: #000;
+    }
+
+    .vs-label {
+      position: absolute;
+      right: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #ef4444;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 3px 6px;
+      border-radius: 4px;
+      z-index: 2;
+      letter-spacing: 1px;
+    }
+
+    .final-card {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(10, 25, 12, 0.9) 100%);
+      border: 2px solid #f59e0b;
+      box-shadow: 0 0 25px rgba(245, 158, 11, 0.2);
+    }
+
+    /* Estilos para las nuevas secciones */
+    .featured-player {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .result-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .chat-sim {
+      height: 200px;
+      overflow-y: auto;
+      font-size: 12px;
+      color: #9ba896;
+      padding-right: 10px;
+    }
+    .chat-sim b { color: #f59e0b; }
+
+    @media (max-width: 980px) {
+      .bracket-wrapper { flex-direction: column; align-items: center; gap: 40px; }
+      .bracket-column { width: 100%; max-width: 400px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="container navbar-inner">
+    <a class="brand" href="index.html">
+      <span class="mark"></span>
+      <span>RankArena</span>
+    </a>
+   
+    <div class="nav-right">
+      <a class="btn btn-ghost" href="index.html">Volver al Inicio</a>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  
+  <section class="tournament-hero">
+    <h1 style="color: #f59e0b; font-size: 48px; font-weight: 900; margin-bottom: 10px; letter-spacing: 1px;">I GRAN TORNEO JURÁSICO</h1>
+    <p style="color: #fff; font-size: 20px; margin-bottom: 25px; font-weight: 300;">Fase Final: El Camino a la Gloria</p>
+    <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+      <span class="pill" style="border-color: #f59e0b; color: #f59e0b; background: rgba(245, 158, 11, 0.05);">⚔️ Disciplina: Ajedrez & Conquest</span>
+      <span class="pill">👥 Guerreros: 16 Clasificados</span>
+      <span class="pill" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">🟢 Fase: Semifinales</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">
+      <h2>📊 Cuadro de Competición</h2>
+      <div class="hint">Resultados actualizados en tiempo real de la fase final.</div>
+    </div>
+    
+    <div class="bracket-wrapper">
+      
+      <div class="bracket-column">
+        <div class="bracket-title">Cuartos de Final</div>
+        
+        <div class="match-box">
+          <div class="player-row winner">
+            <span class="player-name"><span>🦕</span> Joselhino</span>
+            <span class="player-score">2</span>
+          </div>
+          <div class="player-row">
+            <span class="player-name"><span>🍃</span> Sulli</span>
+            <span class="player-score">1</span>
+          </div>
+        </div>
+
+        <div class="match-box active">
+          <div class="player-row winner">
+            <span class="player-name"><span>🛡️</span> Rodrigo_Dev</span>
+            <span class="player-score">2</span>
+          </div>
+          <div class="player-row">
+            <span class="player-name"><span>🧪</span> Prueba</span>
+            <span class="player-score">0</span>
+          </div>
+          <div class="vs-label">DESTACADO</div>
+        </div>
+
+        <div class="match-box">
+          <div class="player-row winner">
+            <span class="player-name"><span>🌋</span> Serro</span>
+            <span class="player-score">2</span>
+          </div>
+          <div class="player-row">
+            <span class="player-name"><span>♟️</span> Aleo</span>
+            <span class="player-score">1</span>
+          </div>
+        </div>
+
+        <div class="match-box">
+          <div class="player-row winner">
+            <span class="player-name"><span>⚔️</span> JManuel</span>
+            <span class="player-score">2</span>
+          </div>
+          <div class="player-row">
+            <span class="player-name"><span>🦅</span> Ptero_Fly</span>
+            <span class="player-score">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bracket-column" style="justify-content: space-around; padding: 50px 0;">
+        <div class="bracket-title">Semifinales</div>
+
+        <div class="match-box active" style="border-color: #f59e0b; background: rgba(245, 158, 11, 0.05);">
+          <div class="player-row">
+            <span class="player-name"><span>🦕</span> Joselhino</span>
+            <span class="player-score">-</span>
+          </div>
+          <div class="player-row">
+            <span class="player-name"><span>🛡️</span> Rodrigo_Dev</span>
+            <span class="player-score">-</span>
+          </div>
+          <div class="vs-label" style="background: #ef4444;">PRÓXIMAMENTE</div>
+        </div>
+
+        <div class="match-box">
+          <div class="player-row">
+            <span class="player-name"><span>🌋</span> Serro</span>
+            <span class="player-score">-</span>
+          </div>
+          <div class="player-row">
+            <span class="player-name"><span>⚔️</span> JManuel</span>
+            <span class="player-score">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bracket-column" style="justify-content: center;">
+        <div class="bracket-title">Gran Final</div>
+        
+        <div class="match-box final-card">
+          <div style="text-align: center; padding: 30px 0;">
+            <div style="font-size: 50px; margin-bottom: 15px; filter: drop-shadow(0 0 10px #f59e0b);">🏆</div>
+            <p class="winner" style="font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Por determinar</p>
+            <div style="height: 2px; background: #f59e0b; width: 60%; margin: 20px auto; opacity: 0.4;"></div>
+            <p class="muted" style="font-size: 11px; text-transform: uppercase;">Gran Final: 15 de Abril</p>
+            <span class="pill" style="font-size: 10px; margin-top: 10px; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border-color: #38bdf8;">PREMIO: INSIGNIA ORO</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="section" style="margin-top: 40px;">
+    <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+      
+      <div class="card">
+        <div class="card-body">
+          <h3 style="color: #f59e0b; margin-bottom: 15px;">🌟 Guerreros a Seguir</h3>
+          
+          <div class="featured-player">
+            <span style="font-size: 24px;">🛡️</span>
+            <div>
+              <b style="color:#fff;">Rodrigo_Dev</b>
+              <p class="muted" style="font-size: 12px; margin: 2px 0 0 0;">MVP de Cuartos. Imbatible en Arena Conquest.</p>
+            </div>
+            <span class="pill" style="margin-left: auto; color:#10b981;">+15 ELO</span>
+          </div>
+
+          <div class="featured-player">
+            <span style="font-size: 24px;">🦕</span>
+            <div>
+              <b style="color:#fff;">Joselhino</b>
+              <p class="muted" style="font-size: 12px; margin: 2px 0 0 0;">Gran estratega en Ajedrez. Ganó a Sulli en Muerte Súbita.</p>
+            </div>
+            <span class="pill" style="margin-left: auto; color:#10b981;">+12 ELO</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <h3 style="color: #f59e0b; margin-bottom: 15px;">📋 Últimos Resultados (Fase de Grupos)</h3>
+          <div class="result-line"><span><b>Joselhino</b> def. Serro</span> <span class="winner">1 - 0 (Ajedrez)</span></div>
+          <div class="result-line"><span><b>Rodrigo_Dev</b> def. Prueba</span> <span class="winner">2 - 0 (Conquest)</span></div>
+          <div class="result-line"><span><b>Sulli</b> def. Aleo</span> <span class="winner">1 - 0 (Ajedrez)</span></div>
+          <div class="result-line"><span><b>JManuel</b> def. Dino_Slayer</span> <span class="winner">2 - 1 (Mto. Súbita)</span></div>
+          <div class="result-line"><span><b>Prueba</b> def. Stego_Player</span> <span class="winner">1 - 0 (Conquest)</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <h3 style="color: #f59e0b; margin-bottom: 15px;">💬 Chat de la Grada</h3>
+          <div class="chat-sim">
+            <p><b>Dino_Fan:</b> ¡Madre mía Rodrigo_Dev, qué stomp a Prueba! 😱</p>
+            <p><b>Ptero_Watcher:</b> Joselhino está fortísimo en ajedrez, cuidado...</p>
+            <p><b>Raptor_Gang:</b> JManuel casi pierde contra Dino_Slayer, ¡vaya final!</p>
+            <p><b>T-Rex_Rules:</b> ¿Cuándo es la semi Rodrigo vs Joselhino?</p>
+            <p><b>Admin_Staff:</b> Horarios de semis mañana a las 18:00 CEST. 📢</p>
+            <p><b>Sulli_Fan:</b> Ánimo Sulli, ¡a por el bronce!</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="section" style="margin-top: 30px;">
+    <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+      <div class="card" style="border-color: rgba(245, 158, 11, 0.3);">
+        <div class="card-body">
+          <h3 style="color: #f59e0b;">📢 Anuncio de la Organización</h3>
+          <p class="muted" style="font-size: 14px; line-height: 1.6;">
+            Recordamos a los semifinalistas que las partidas deben jugarse con el <b>Reloj de 10 minutos</b> sincronizado. Cualquier desconexión intencionada detectada por el sistema central supondrá la derrota automática del mapa. ¡Juego limpio, guerreros!
+          </p>
+        </div>
+      </div>
+      <div class="card" style="border-color: rgba(245, 158, 11, 0.3);">
+        <div class="card-body">
+          <h3 style="color: #f59e0b;">💰 Tabla de Premios</h3>
+          <ul class="muted" style="font-size: 14px; line-height: 1.8; list-style: none; padding: 0;">
+            <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px; background: rgba(245, 158, 11, 0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.1);">
+              <div style="position: relative;">
+                <img src="assets/img/iconos/Torneo1.png" alt="Insignia Campeón" style="width: 45px; height: 45px; object-fit: contain; filter: drop-shadow(0 0 5px #f59e0b);">
+                <span style="position: absolute; top: -5px; right: -5px; font-size: 12px;">✨</span>
+              </div>
+              <div>
+                <b style="color: #fff; font-size: 15px;">🥇 Campeón Absoluto</b><br>
+                <span style="color: #f59e0b; font-size: 12px; font-weight: bold;">Insignia "Reliquia de la Arena"</span> + 1000 Monedas
+              </div>
+            </li>
+            <li style="padding-left: 10px;">🥈 <b>Subcampeón:</b> Insignia de Plata + 500 Monedas Altar.</li>
+            <li style="padding-left: 10px; margin-top: 5px;">🥉 <b>Tercer Puesto:</b> 250 Monedas Altar.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer style="margin-top: 60px; padding: 40px 20px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1);">
+  <p class="muted" style="font-size: 12px;">RankArena Tournament System v1.1 &copy; 2026 · Simulación de Competición</p>
+</footer>
+
+</body>
+</html>
