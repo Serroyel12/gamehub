@@ -2,56 +2,35 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Panel de Administración - RankArena</title>
+  <title>Sistema Central - RankArena Admin</title>
   <link rel="icon" type="image/png" href="assets/img/logo_dino.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="assets/css/base.css">
   <style>
     .admin-overlay {
-      position: fixed;
-      inset: 0;
-      background: #061208;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
+      position: fixed; inset: 0; background: #061208;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000;
     }
     .admin-card {
-      background: rgba(10, 25, 12, 0.95);
-      border: 2px solid #dc2626;
-      border-radius: 12px;
-      padding: 30px;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 25px rgba(220, 38, 38, 0.2);
+      background: rgba(10, 25, 12, 0.95); border: 2px solid #dc2626; border-radius: 12px;
+      padding: 30px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     }
-    .admin-panel {
-      display: none; /* Se muestra tras poner la clave */
-    }
+    .admin-panel { display: none; padding-bottom: 60px; }
     .table-container {
-      overflow-x: auto;
-      background: rgba(10, 25, 12, 0.85);
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 20px;
+      overflow-x: auto; background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 10px; margin-bottom: 25px;
     }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    th { color: #f59e0b; text-transform: uppercase; font-size: 13px; }
-    td { color: #cddcb4; font-size: 14px; }
+    th { color: #f59e0b; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+    td { color: #cddcb4; font-size: 13px; }
     
-    .ban-hammer-card {
-      background: rgba(220, 38, 38, 0.05);
-      border: 1px solid #dc2626;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 30px;
-      display: flex;
-      gap: 15px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
+    .status-badge { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+    .status-ban { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
+    .status-ok { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
+
+    .edit-input { background: rgba(0,0,0,0.3); border: 1px solid #38bdf8; color: white; padding: 6px; border-radius: 4px; width: 100%; font-size: 12px; }
+    .section-title-admin { color: #ef4444; border-left: 4px solid #ef4444; padding-left: 15px; margin-bottom: 15px; text-transform: uppercase; font-weight: 900; }
   </style>
 </head>
 <body>
@@ -59,73 +38,67 @@
 <div id="loginScreen" class="admin-overlay">
   <div class="admin-card">
     <div style="font-size: 50px; margin-bottom: 10px;">🔒</div>
-    <h2 style="color: #ef4444; margin-bottom: 20px;">Acceso Restringido</h2>
-    <input type="password" id="adminPassword" placeholder="Contraseña de Admin" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #dc2626; background: rgba(0,0,0,0.5); color: #fff; text-align: center; font-size: 18px;">
-    <button id="loginBtn" class="btn primary" style="background: #dc2626; border-color: #7f1d1d; width: 100%;">Entrar al Sistema</button>
+    <h2 style="color: #ef4444; margin-bottom: 20px; font-weight: 900;">SISTEMA CENTRAL</h2>
+    <input type="password" id="adminPassword" placeholder="Clave de Acceso" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #dc2626; background: rgba(0,0,0,0.5); color: #fff; text-align: center;">
+    <button id="loginBtn" class="btn primary" style="background: #dc2626; width: 100%;">ACCEDER</button>
   </div>
 </div>
 
 <div id="adminDashboard" class="admin-panel">
   <header class="navbar">
     <div class="container navbar-inner">
-      <a class="brand" href="index.html">
-        <span class="mark"></span>
-        <span style="color: #ef4444;">RankArena | ADMIN</span>
-      </a>
-      <div class="nav-right">
-        <button class="btn btn-ghost" onclick="window.location.href='index.html'">Volver al Inicio</button>
-      </div>
+      <a class="brand" href="index.html"><span class="mark"></span><span style="color: #ef4444;">RankArena | PANEL DE CONTROL</span></a>
+      <div class="nav-right"><button class="btn btn-ghost" onclick="window.location.href='index.html'">Salir</button></div>
     </div>
   </header>
 
   <main class="container">
-    <h1 style="color: #ef4444; text-transform: uppercase; margin-top: 20px;">🛠️ Centro de Control</h1>
-    <p style="color: #9ba896; margin-bottom: 30px;">Gestión de integridad de la arena y reportes de la comunidad.</p>
-
+    <h1 style="color: #ef4444; margin-top: 30px; font-weight: 900;">CENTRO DE MANDO</h1>
+    
     <section class="section">
-      <h2 style="color: #ef4444; border-bottom: 1px solid rgba(239, 68, 68, 0.3); padding-bottom: 10px;">🔨 Ban Hammer - Control de Tramposos</h2>
-      <div class="ban-hammer-card">
-        <div style="flex: 1; min-width: 250px;">
-          <input type="text" id="cheaterNickname" placeholder="Escribe el Nickname exacto..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #dc2626; background: rgba(0,0,0,0.5); color: #fff;">
-        </div>
-        <button id="btnMarkCheater" class="btn" style="background: #dc2626; color: white;">MARCAR TRAMPOSO ⚠️</button>
-        <button id="btnClearCheater" class="btn" style="background: #10b981; color: white;">LIMPIAR MARCA ✅</button>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2 style="color: #f59e0b; border-bottom: 1px solid rgba(245, 158, 11, 0.3); padding-bottom: 10px;">🚨 Reportes Pendientes</h2>
+      <h2 class="section-title-admin" style="color: #f59e0b; border-color: #f59e0b;">👥 Gestión de Usuarios (Firebase)</h2>
       <div class="table-container">
         <table>
           <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Email</th>
-              <th>Tipo</th>
-              <th>Detalles</th>
-              <th>Acción</th>
-            </tr>
+            <tr><th>Nickname</th><th>Puntos</th><th>ELO</th><th>Estado</th><th>Acción</th></tr>
           </thead>
-          <tbody id="reportsTableBody"></tbody>
+          <tbody id="usersTableBody"></tbody>
         </table>
       </div>
     </section>
 
-    <div class="spacer" style="height: 30px;"></div>
-
     <section class="section">
-      <h2 style="color: #10b981; border-bottom: 1px solid rgba(16, 185, 129, 0.3); padding-bottom: 10px;">🎮 Juegos de la Comunidad</h2>
+      <h2 class="section-title-admin" style="color: #38bdf8; border-color: #38bdf8;">🎮 Títulos Oficiales (Edición)</h2>
       <div class="table-container">
         <table>
           <thead>
-            <tr>
-              <th>ID</th>
-              <th>Título</th>
-              <th>Autor</th>
-              <th>Acción</th>
-            </tr>
+            <tr><th style="width:120px;">ID</th><th>Título</th><th>Descripción / Tagline</th><th style="width:80px;">Acción</th></tr>
           </thead>
-          <tbody id="gamesTableBody"></tbody>
+          <tbody id="officialGamesTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title-admin" style="color: #10b981; border-color: #10b981;">🕹️ Juegos de la Comunidad</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Título</th><th>Autor</th><th>Categoría</th><th>Acción</th></tr>
+          </thead>
+          <tbody id="communityGamesTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title-admin">🚨 Incidencias Pendientes</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Fecha</th><th>Tipo</th><th>Detalles</th><th>Acción</th></tr>
+          </thead>
+          <tbody id="reportsTableBody"></tbody>
         </table>
       </div>
     </section>
@@ -133,125 +106,140 @@
 </div>
 
 <script type="module">
-  // Importaciones necesarias para el Ban Hammer
   import { db } from "./assets/js/firebase.js";
-  import { collection, query, where, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+  import { collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
-  const PASSWORD_CORRECTA = "UCAM12"; 
-  
+  const PASSWORD_CORRECTA = "UCAM12";
+
   document.getElementById("loginBtn").addEventListener("click", () => {
-    const pass = document.getElementById("adminPassword").value;
-    if (pass === PASSWORD_CORRECTA) {
+    if (document.getElementById("adminPassword").value === PASSWORD_CORRECTA) {
       document.getElementById("loginScreen").style.display = "none";
       document.getElementById("adminDashboard").style.display = "block";
-      cargarDatosAdmin();
-    } else {
-      alert("Contraseña incorrecta.");
-    }
+      initAdmin();
+    } else { alert("Acceso denegado."); }
   });
 
-  // --- LÓGICA DE BAN HAMMER (FIREBASE) ---
-  async function toggleCheaterStatus(status) {
-    const nick = document.getElementById('cheaterNickname').value.trim();
-    if (!nick) return alert("Introduce un nickname.");
-
-    try {
-      const q = query(collection(db, "users"), where("nickname", "==", nick));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        return alert("No se encontró ningún usuario con ese nickname.");
-      }
-
-      const userDoc = querySnapshot.docs[0];
-      await updateDoc(doc(db, "users", userDoc.id), {
-        isCheater: status
-      });
-
-      alert(`Éxito: Marca de tramposo ${status ? 'aplicada' : 'retirada'} a ${nick}`);
-      document.getElementById('cheaterNickname').value = "";
-    } catch (error) {
-      console.error(error);
-      alert("Error al actualizar la base de datos.");
-    }
-  }
-
-  document.getElementById('btnMarkCheater').onclick = () => toggleCheaterStatus(true);
-  document.getElementById('btnClearCheater').onclick = () => toggleCheaterStatus(false);
-
-
-  // --- FUNCIONES ORIGINALES (LOCAL STORAGE) ---
-  function cargarDatosAdmin() {
+  async function initAdmin() {
+    await cargarUsuarios();
+    renderizarOficiales();
+    renderizarComunidad();
     renderizarReportes();
-    renderizarJuegos();
-    const reportes = JSON.parse(localStorage.getItem('rankArenaReports')) || [];
-    if (reportes.length > 0) {
-      document.querySelector('h1').innerHTML = `🛠️ Centro de Control <span style="background: #dc2626; color: white; font-size: 14px; padding: 4px 12px; border-radius: 20px; vertical-align: middle; margin-left: 10px;">${reportes.length} AVISOS</span>`;
-    }
   }
 
+  // --- USUARIOS ---
+  async function cargarUsuarios() {
+    const tbody = document.getElementById('usersTableBody');
+    try {
+      const snap = await getDocs(collection(db, "users"));
+      tbody.innerHTML = '';
+      snap.forEach(uDoc => {
+        const u = uDoc.data();
+        const isBanned = u.isCheater || false;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><b>${u.nickname || 'Anónimo'}</b></td>
+          <td>${u.globalScore || 0}</td>
+          <td>${u.elo || 1200}</td>
+          <td><span class="status-badge ${isBanned ? 'status-ban' : 'status-ok'}">${isBanned ? 'BAN' : 'OK'}</span></td>
+          <td><button class="btn" style="background:${isBanned ? '#10b981' : '#dc2626'}; font-size:9px; padding:5px;" onclick="toggleBan('${uDoc.id}', ${!isBanned})">${isBanned ? 'Quitar Ban' : 'Ban Hammer'}</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (e) { console.error(e); }
+  }
+
+  window.toggleBan = async (id, status) => {
+    await updateDoc(doc(db, "users", id), { isCheater: status });
+    cargarUsuarios();
+  };
+
+  // --- JUEGOS OFICIALES (A MANO - SIN CARGAR DE SITIOS EXTERNOS) ---
+  function renderizarOficiales() {
+    const misJuegosFijos = [
+      { id: "snake", title: "Snake", tagline: "El clásico de siempre." },
+      { id: "meteor_dodge", title: "Volcano Dodge", tagline: "Esquiva meteoritos con tu nave." },
+      { id: "reflex_arena", title: "Reflex Arena", tagline: "Piedra · Papel · Tijera." },
+      { id: "aim_trainer", title: "Aim Trainer", tagline: "Haz click y rompe tu récord." },
+      { id: "chess", title: "Ajedrez", tagline: "Estrategia online." },
+      { id: "arena_conquest", title: "Arena Conquest", tagline: "Domina la arena hexagonal." }
+    ];
+
+    // Persistencia local para simular cambios
+    let editados = JSON.parse(localStorage.getItem('rankArenaOfficialEdits')) || misJuegosFijos;
+    
+    // Forzar que siempre salgan los 6 incluso si no estaban en el localStorage previo
+    if (editados.length < 6) editados = misJuegosFijos;
+
+    const tbody = document.getElementById('officialGamesTableBody');
+    tbody.innerHTML = '';
+
+    editados.forEach((j, index) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="font-size:11px; color:#38bdf8; font-family:monospace;">${j.id}</td>
+        <td><input type="text" class="edit-input" id="otit-${index}" value="${j.title}"></td>
+        <td><input type="text" class="edit-input" id="otag-${index}" value="${j.tagline}"></td>
+        <td><button class="btn" style="background:#38bdf8; color:#000; padding:5px; font-size:10px; font-weight:bold;" onclick="saveOfi(${index})">GUARDAR</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+    localStorage.setItem('rankArenaOfficialEdits', JSON.stringify(editados));
+  }
+
+  window.saveOfi = (index) => {
+    let editados = JSON.parse(localStorage.getItem('rankArenaOfficialEdits'));
+    editados[index].title = document.getElementById(`otit-${index}`).value;
+    editados[index].tagline = document.getElementById(`otag-${index}`).value;
+    localStorage.setItem('rankArenaOfficialEdits', JSON.stringify(editados));
+    alert("Juego actualizado en el sistema.");
+    renderizarOficiales();
+  };
+
+  // --- JUEGOS COMUNIDAD ---
+  function renderizarComunidad() {
+    const juegos = JSON.parse(localStorage.getItem('rankArenaCreatorGames')) || [];
+    const tbody = document.getElementById('communityGamesTableBody');
+    tbody.innerHTML = '';
+    if(juegos.length === 0) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Sin juegos de la comunidad.</td></tr>';
+    juegos.forEach(j => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><b style="color:#10b981">${j.title}</b></td>
+        <td>${j.author}</td>
+        <td><span class="pill" style="font-size:10px;">${j.category}</span></td>
+        <td><button class="btn" style="background:#dc2626; padding:5px; font-size:10px;" onclick="delComu('${j.id}')">ELIMINAR</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  window.delComu = (id) => {
+    if(confirm("¿Borrar juego permanentemente?")) {
+      let juegos = JSON.parse(localStorage.getItem('rankArenaCreatorGames')) || [];
+      localStorage.setItem('rankArenaCreatorGames', JSON.stringify(juegos.filter(j => j.id !== id)));
+      renderizarComunidad();
+    }
+  };
+
+  // --- REPORTES ---
   function renderizarReportes() {
     const reportes = JSON.parse(localStorage.getItem('rankArenaReports')) || [];
     const tbody = document.getElementById('reportsTableBody');
     tbody.innerHTML = '';
-    if (reportes.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ba896;">No hay reportes nuevos.</td></tr>';
-      return;
-    }
+    if(reportes.length === 0) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; opacity:0.5;">No hay incidencias.</td></tr>';
     reportes.forEach(rep => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${rep.fecha}</td>
-        <td>${rep.email}</td>
-        <td><b style="color:#ef4444">${rep.tipo}</b></td>
-        <td style="max-width: 300px; word-wrap: break-word;">${rep.detalles}</td>
-        <td>
-          <button class="btn" style="background:#10b981; color:#fff; border:none; padding: 6px 12px; font-size:12px;" onclick="resolverReporte('${rep.id}')">Resolver ✅</button>
-        </td>
-      `;
+      tr.innerHTML = `<td>${rep.fecha}</td><td><b style="color:#ef4444">${rep.tipo}</b></td><td>${rep.detalles}</td>
+        <td><button class="btn" style="background:#10b981; padding:5px; font-size:10px;" onclick="resRep('${rep.id}')">CERRAR</button></td>`;
       tbody.appendChild(tr);
     });
   }
 
-  function renderizarJuegos() {
-    const juegos = JSON.parse(localStorage.getItem('rankArenaCreatorGames')) || [];
-    const tbody = document.getElementById('gamesTableBody');
-    tbody.innerHTML = '';
-    if (juegos.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #9ba896;">No hay juegos de la comunidad.</td></tr>';
-      return;
-    }
-    juegos.forEach(juego => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td style="font-size: 11px; color: #64748b;">${juego.id}</td>
-        <td><b style="color:#10b981">${juego.title}</b></td>
-        <td>${juego.author}</td>
-        <td>
-          <button class="btn" style="background:#dc2626; color:#fff; border:none; padding: 6px 12px; font-size:12px;" onclick="eliminarJuego('${juego.id}')">Eliminar 🗑️</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  window.resolverReporte = function(id) {
-    if(confirm("¿Marcar como resuelto?")) {
-      let reportes = JSON.parse(localStorage.getItem('rankArenaReports')) || [];
-      reportes = reportes.filter(r => r.id !== id);
-      localStorage.setItem('rankArenaReports', JSON.stringify(reportes));
-      renderizarReportes();
-    }
-  }
-
-  window.eliminarJuego = function(id) {
-    if(confirm("¿Borrar juego permanentemente?")) {
-      let juegos = JSON.parse(localStorage.getItem('rankArenaCreatorGames')) || [];
-      juegos = juegos.filter(j => j.id !== id);
-      localStorage.setItem('rankArenaCreatorGames', JSON.stringify(juegos));
-      renderizarJuegos();
-    }
-  }
+  window.resRep = (id) => {
+    let reportes = JSON.parse(localStorage.getItem('rankArenaReports')) || [];
+    localStorage.setItem('rankArenaReports', JSON.stringify(reportes.filter(r => r.id !== id)));
+    renderizarReportes();
+  };
 </script>
 </body>
 </html>
